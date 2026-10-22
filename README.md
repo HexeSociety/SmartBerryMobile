@@ -1,0 +1,1 @@
+android:fontFamily="@font/k2d_thin"
