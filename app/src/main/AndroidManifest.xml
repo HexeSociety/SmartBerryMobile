@@ -13,7 +13,7 @@
         android:theme="@style/Theme.SmartBerry">
         <activity
             android:name=".HistoricoActivity"
-            android:exported="false" />
+            android:exported="true" />
         <activity
             android:name=".CarregamentoActivity"
             android:exported="false" />

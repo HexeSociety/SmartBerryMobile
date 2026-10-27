@@ -16,7 +16,7 @@
         android:layout_marginBottom="552dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/bolhasU" />
+        app:srcCompat="@drawable/bolhas_up" />
 
     <ImageView
         android:id="@+id/imageView2"
@@ -26,7 +26,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/bolhasD" />
+        app:srcCompat="@drawable/bolhas_down" />
 
     <ImageView
         android:id="@+id/imageView3"
@@ -36,7 +36,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/LogoClara" />
+        app:srcCompat="@drawable/logo_clara" />
 
     <TextView
         android:id="@+id/txtTitleSmartBerry"
@@ -56,7 +56,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="28dp"
-
         android:text="360°"
         android:textStyle="bold"
         android:textSize="30sp"
@@ -86,7 +85,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="370dp"
         android:fontFamily="@font/k2d_semibold"
-        android:text="TECNOLOGIA & AGRICULTURA"
+        android:text="TECNOLOGIA &amp; AGRICULTURA"
         android:textColor="#000000"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
