@@ -64,7 +64,7 @@
                 <ImageView
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:background="@drawable/logoLogin"
+                    android:background="@drawable/logo_login"
                     android:contentDescription="@null"
                     android:padding="8dp" />
 
@@ -167,11 +167,18 @@
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp">
 
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/icone_email" />
+
                 <EditText
                     android:id="@+id/txtEmail"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:autofillHints="emailAddress"
+                    android:layout_marginStart="10dp"
                     android:background="@null"
                     android:fontFamily="@font/inter_medium"
                     android:hint="contato@fazenda.com"
@@ -245,7 +252,7 @@
                     android:layout_width="22dp"
                     android:layout_height="22dp"
                     android:contentDescription="@null"
-                    android:src="@drawable/iconeSenha" />
+                    android:src="@drawable/icone_senha" />
 
                 <EditText
                     android:id="@+id/txtSenha"
@@ -289,7 +296,7 @@
                     android:layout_width="22dp"
                     android:layout_height="22dp"
                     android:contentDescription="@null"
-                    android:src="@drawable/iconeSenha" />
+                    android:src="@drawable/icone_senha" />
 
                 <EditText
                     android:id="@+id/txtConfirmarSenha"
