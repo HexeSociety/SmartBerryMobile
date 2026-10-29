@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".CadastroActivity">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="932dp"
+        android:importantForAccessibility="no"
+        android:src="@drawable/bolha_up_cadastro"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <ImageView
+        android:layout_width="208dp"
+        android:layout_height="332dp"
+        android:layout_marginEnd="300dp"
+        android:layout_marginBottom="40dp"
+        android:importantForAccessibility="no"
+        android:src="@drawable/bolha_down_cadastro"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <ImageView
+        android:layout_width="234dp"
+        android:layout_height="328dp"
+        android:layout_marginStart="268dp"
+        android:importantForAccessibility="no"
+        android:src="@drawable/bolha_centro_cadastro"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.296" />
+
+    <ScrollView
+        android:id="@+id/scroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:paddingBottom="24dp">
+
+            <!-- Logo -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="110dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/logoLogin"
+                    android:contentDescription="@null"
+                    android:padding="8dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:fontFamily="@font/k2d_extrabold"
+                    android:includeFontPadding="false"
+                    android:text="SmartBerry"
+                    android:textColor="@color/logo"
+                    android:textSize="24sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/k2d_extrabold"
+                    android:includeFontPadding="false"
+                    android:text="360°"
+                    android:textColor="@color/fundoBotao"
+                    android:textSize="24sp" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/inter_semibold"
+                android:text="Criar Nova Conta"
+                android:textColor="@android:color/black"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="2dp"
+                android:fontFamily="@font/inter"
+                android:text="Etapa 1 de 2"
+                android:textColor="@color/texto"
+                android:textSize="13sp" />
+
+            <!-- Nome -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="40dp"
+                android:fontFamily="@font/inter_semibold"
+                android:text="Nome Completo do Produtor"
+                android:textColor="@color/texto"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/fundo_input"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
+
+                <EditText
+                    android:id="@+id/txtNome"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:autofillHints="name"
+                    android:background="@null"
+                    android:fontFamily="@font/inter_medium"
+                    android:hint="Ex: João Silva"
+                    android:imeOptions="actionNext"
+                    android:inputType="textPersonName|textCapWords"
+                    android:maxLines="1"
+                    android:padding="0dp"
+                    android:textColor="@color/texto"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+            <!-- E-mail -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:fontFamily="@font/inter_semibold"
+                android:text="E-mail"
+                android:textColor="@color/texto"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/fundo_input"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
+
+                <EditText
+                    android:id="@+id/txtEmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:autofillHints="emailAddress"
+                    android:background="@null"
+                    android:fontFamily="@font/inter_medium"
+                    android:hint="contato@fazenda.com"
+                    android:imeOptions="actionNext"
+                    android:inputType="textEmailAddress"
+                    android:maxLines="1"
+                    android:padding="0dp"
+                    android:textColor="@color/texto"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+            <!-- Telefone -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:fontFamily="@font/inter_semibold"
+                android:text="Telefone de Contato"
+                android:textColor="@color/texto"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/fundo_input"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
+
+                <EditText
+                    android:id="@+id/txtTelefone"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:autofillHints="phone"
+                    android:background="@null"
+                    android:fontFamily="@font/inter_medium"
+                    android:hint="(11) 99999-9999"
+                    android:imeOptions="actionNext"
+                    android:inputType="phone"
+                    android:maxLines="1"
+                    android:padding="0dp"
+                    android:textColor="@color/texto"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+            <!-- Senha -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:fontFamily="@font/inter_semibold"
+                android:text="Senha"
+                android:textColor="@color/texto"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/fundo_input"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
+
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/iconeSenha" />
+
+                <EditText
+                    android:id="@+id/txtSenha"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="10dp"
+                    android:autofillHints="newPassword"
+                    android:background="@null"
+                    android:fontFamily="@font/inter_medium"
+                    android:hint="Digite sua senha de acesso"
+                    android:imeOptions="actionNext"
+                    android:inputType="textPassword"
+                    android:maxLines="1"
+                    android:padding="0dp"
+                    android:textColor="@color/texto"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+            <!-- Confirmar senha -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:fontFamily="@font/inter_semibold"
+                android:text="Senha"
+                android:textColor="@color/texto"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/fundo_input"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
+
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/iconeSenha" />
+
+                <EditText
+                    android:id="@+id/txtConfirmarSenha"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="10dp"
+                    android:autofillHints="newPassword"
+                    android:background="@null"
+                    android:fontFamily="@font/inter_medium"
+                    android:hint="Confirme a senha de acesso"
+                    android:imeOptions="actionDone"
+                    android:inputType="textPassword"
+                    android:maxLines="1"
+                    android:padding="0dp"
+                    android:textColor="@color/texto"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+            <!-- Botões -->
+            <Button
+                android:id="@+id/btnProximaEtapa"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="32dp"
+                android:elevation="4dp"
+                android:fontFamily="@font/inter_semibold"
+                android:stateListAnimator="@null"
+                android:text="Próxima Etapa"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:backgroundTint="@color/fundoBotao"
+                app:cornerRadius="8dp" />
+
+            <Button
+                android:id="@+id/btnVoltarLogin"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="12dp"
+                android:elevation="4dp"
+                android:fontFamily="@font/inter_semibold"
+                android:stateListAnimator="@null"
+                android:text="Voltar Para Login"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:backgroundTint="@color/fundoBotao"
+                app:cornerRadius="8dp" />
+
+        </LinearLayout>
+    </ScrollView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
