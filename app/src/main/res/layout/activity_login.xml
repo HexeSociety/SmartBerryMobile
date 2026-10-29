@@ -9,31 +9,39 @@
     tools:context=".Login">
 
     <ImageView
-        android:layout_width="309dp"
-        android:layout_height="170dp"
+        android:layout_width="477dp"
+        android:layout_height="118dp"
         android:layout_gravity="top|start"
+        android:layout_marginEnd="16dp"
         android:importantForAccessibility="no"
         android:src="@drawable/bolha_up_login"
-        tools:layout_editor_absoluteX="-16dp"
-        tools:layout_editor_absoluteY="-47dp" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="top|end"
+        android:layout_marginStart="296dp"
+        android:layout_marginBottom="300dp"
         android:importantForAccessibility="no"
         android:src="@drawable/bolha_centro_login"
-        tools:layout_editor_absoluteX="316dp"
-        tools:layout_editor_absoluteY="271dp" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="124dp"
+        android:layout_height="253dp"
         android:layout_gravity="bottom|start"
+        android:layout_marginEnd="300dp"
         android:importantForAccessibility="no"
         android:src="@drawable/bolha_down_login"
-        tools:layout_editor_absoluteX="-16dp"
-        tools:layout_editor_absoluteY="617dp" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
 
     <ScrollView
         android:id="@+id/scroll"
@@ -54,7 +62,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginTop="66dp"
+                android:layout_marginTop="130dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
@@ -99,7 +107,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="132dp"
+                android:layout_marginTop="50dp"
                 android:fontFamily="@font/inter_semibold"
                 android:text="E-mail do Produtor"
                 android:textColor="@color/texto"
@@ -238,6 +246,7 @@
 
         </LinearLayout>
     </ScrollView>
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
