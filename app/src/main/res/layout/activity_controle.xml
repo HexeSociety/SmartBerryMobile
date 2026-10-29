@@ -88,10 +88,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:checked="true"
-                    app:thumbTint="@color/switch_thumb"
-                    app:trackTint="@color/switch_track"                   app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:thumbTint="@color/switch_thumb"
+                    app:trackTint="@color/switch_track" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -114,20 +115,38 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="8dp"
             android:layout_marginEnd="20dp"
             android:clipToPadding="false"
             android:nestedScrollingEnabled="false"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/txtProgramacao" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAdicionarIrrigacao"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="20dp"
+            android:text="+ Adicionar horário"
+            android:textAllCaps="false"
+            android:textColor="#35A736"
+            app:cornerRadius="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/listaHorarios" />
+
+        <!-- ===== VENTILAÇÃO ===== -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnIrrigar"
             android:layout_width="0dp"
             android:layout_height="52dp"
             android:layout_marginStart="20dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="5dp"
             android:layout_marginEnd="20dp"
             android:fontFamily="@font/inter_extrabold"
             android:text="Irrigar Agora"
@@ -136,10 +155,10 @@
             app:backgroundTint="#35A736"
             app:cornerRadius="8dp"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/listaHorarios" />
+            app:layout_constraintTop_toBottomOf="@+id/btnAdicionarIrrigacao" />
 
-        <!-- ===== VENTILAÇÃO ===== -->
         <TextView
             android:id="@+id/txtTituloVentilacao"
             android:layout_width="wrap_content"
@@ -222,14 +241,43 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/listaHorariosVentilacao"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="20dp"
+            android:clipToPadding="false"
+            android:nestedScrollingEnabled="false"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cardModoVentilacao" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAdicionarVentilacao"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="20dp"
+            android:text="+ Adicionar horário"
+            android:textAllCaps="false"
+            android:textColor="#35A736"
+            app:cornerRadius="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/listaHorariosVentilacao" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnVentilar"
             android:layout_width="0dp"
             android:layout_height="52dp"
             android:layout_marginStart="20dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="5dp"
             android:layout_marginEnd="20dp"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="20dp"
             android:fontFamily="@font/inter_extrabold"
             android:text="Ventilar Agora"
             android:textAllCaps="false"
@@ -240,8 +288,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/cardModoVentilacao"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintTop_toBottomOf="@+id/btnAdicionarVentilacao" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>
