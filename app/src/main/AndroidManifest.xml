@@ -30,6 +30,13 @@
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
+
+        <activity
+            android:name=".DashboardActivity"
+            android:exported="false"
+            android:label="@string/title_activity_dashboard"
+            android:theme="@style/Theme.SmartBerry"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>
