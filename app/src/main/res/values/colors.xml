@@ -14,4 +14,10 @@
     <color name="texto">#6E6D64</color>
     <color name="textoNivelCritico">#D97706</color>
     <color name="textoErro">#DC2626</color>
+
+    <!-- Histórico -->
+    <!--Botão ativo utilizar 'fundoBotao'-->
+    <color name="txtBtnActive">#FFFFFF</color>
+    <color name="btnNeutro">#FFFFFF</color>
+
 </resources>
