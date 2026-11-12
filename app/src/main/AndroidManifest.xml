@@ -8,12 +8,21 @@
         android:fullBackupContent="@xml/backup_rules"
         android:label="@string/app_name"
         android:supportsRtl="true"
+        android:forceDarkAllowed="false"
         android:theme="@style/Theme.SmartBerry">
         <activity
             android:name=".HistoricoActivity"
             android:exported="true" />
         <activity
             android:name=".CarregamentoActivity"
+            android:exported="false" />
+        <activity
+            android:name=".DashboardActivity"
+            android:exported="false"
+            android:theme="@style/Theme.SmartBerry"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".PerfilActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"
@@ -30,10 +39,8 @@
             android:resource="@array/preloaded_fonts" />
 
         <activity
-            android:name=".DashboardActivity"
+            android:name=".BaseActivity"
             android:exported="false"
-            android:label="@string/title_activity_dashboard"
-            android:theme="@style/Theme.SmartBerry"
             android:windowSoftInputMode="adjustResize" />
     </application>
 
