@@ -3,6 +3,7 @@
     <color name="fundo">#FAF9F2</color>
     <color name="fundoBotao">#38A635</color>
     <color name="fundoInput">#FFFFFF</color>
+    <color name="bordaBtn">#E9E7D8</color>
     <color name="fundoCritico">#FEF9C3</color>
     <color name="fundoConcluido">#DCFCE7</color>
     <color name="fundoAlerta">#FEE2E2</color>
