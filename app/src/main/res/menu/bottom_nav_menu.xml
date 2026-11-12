@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_inicio"
+        android:icon="@drawable/ic_home"
+        android:title="Início" />
+
+    <item
+        android:id="@+id/nav_monitoramento"
+        android:icon="@drawable/ic_monit"
+        android:title="Monitoramento" />
+
+    <item
+        android:id="@+id/nav_controle"
+        android:icon="@drawable/ic_controle"
+        android:title="Controle" />
+
+    <item
+        android:id="@+id/nav_alertas"
+        android:icon="@drawable/ic_alertas"
+        android:title="Alertas" />
+
+    <item
+        android:id="@+id/nav_perfil"
+        android:icon="@drawable/ic_perfil"
+        android:title="Perfil" />
+
+</menu>
