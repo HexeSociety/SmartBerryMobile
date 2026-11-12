@@ -8,13 +8,14 @@
     tools:context=".CadastroActivity">
 
     <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="932dp"
+        android:layout_width="430dp"
+        android:layout_height="86dp"
         android:importantForAccessibility="no"
         android:src="@drawable/bolha_up_cadastro"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
 
     <ImageView
         android:layout_width="208dp"
@@ -277,7 +278,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:fontFamily="@font/inter_semibold"
-                android:text="Senha"
+                android:text="Confirmar Senha"
                 android:textColor="@color/texto"
                 android:textSize="14sp"
                 android:textStyle="bold" />
@@ -285,7 +286,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="5dp"
                 android:background="@drawable/fundo_input"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
