@@ -30,7 +30,7 @@ import com.google.android.material.materialswitch.MaterialSwitch;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ControleActivity extends AppCompatActivity {
+public class ControleActivity extends BaseActivity {
 
     private boolean revertendoSwitch = false;
     private void configurarAgendamento(String processo, MaterialSwitch sw, Button btnAdicionar,
@@ -189,6 +189,9 @@ public class ControleActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_controle);
+
+        //navbar
+        configurarNavbar(R.id.nav_controle);
 
         // Irrigação
         List<Horario> horariosIrrigacao = new ArrayList<>();

@@ -17,6 +17,9 @@
             android:name=".CarregamentoActivity"
             android:exported="true" />
         <activity
+            android:name=".ControleActivity"
+            android:exported="true" />
+        <activity
             android:name=".DashboardActivity"
             android:exported="false"
             android:theme="@style/Theme.SmartBerry"
