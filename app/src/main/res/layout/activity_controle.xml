@@ -299,9 +299,7 @@
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.core.widget.NestedScrollView>
-
-    <!-- Navbar -->
-    <include layout="@layout/navbar" />
-
-</LinearLayout>
+</androidx.core.widget.NestedScrollView>
+    <!-- Navbar fixa na parte inferior -->
+<include layout="@layout/navbar" />
+    </LinearLayout>

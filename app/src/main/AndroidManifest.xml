@@ -5,13 +5,19 @@
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
+        android:forceDarkAllowed="false"
         android:fullBackupContent="@xml/backup_rules"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:forceDarkAllowed="false"
         android:theme="@style/Theme.SmartBerry">
         <activity
+            android:name=".AlertasActivity"
+            android:exported="true" />
+        <activity
             android:name=".HistoricoActivity"
+            android:exported="true" />
+        <activity
+            android:name=".ControleActivity"
             android:exported="true" />
         <activity
             android:name=".CarregamentoActivity"
@@ -32,6 +38,7 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

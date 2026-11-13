@@ -189,6 +189,7 @@ public class ControleActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_controle);
+        configurarNavbar(R.id.nav_controle);
 
         //navbar
         configurarNavbar(R.id.nav_controle);
