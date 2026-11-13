@@ -48,12 +48,24 @@ public class BaseActivity extends AppCompatActivity {
                 return true;
             }
 
-            // Opções ainda não implementadas
-            if (id == R.id.nav_monitoramento ||
-                    id == R.id.nav_controle ||
-                    id == R.id.nav_alertas) {
+            // Controle
+            if (id == R.id.nav_controle) {
 
-                return false;
+                if (itemSelecionado != R.id.nav_controle) {
+                    abrirTela(ControleActivity.class);
+                }
+
+                return true;
+            }
+
+            // Alertas
+            if (id == R.id.nav_alertas) {
+
+                if (itemSelecionado != R.id.nav_alertas) {
+                    abrirTela(AlertasActivity.class);
+                }
+
+                return true;
             }
 
             return false;
