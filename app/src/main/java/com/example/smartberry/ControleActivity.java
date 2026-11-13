@@ -191,6 +191,9 @@ public class ControleActivity extends BaseActivity {
         setContentView(R.layout.activity_controle);
         configurarNavbar(R.id.nav_controle);
 
+        //navbar
+        configurarNavbar(R.id.nav_controle);
+
         // Irrigação
         List<Horario> horariosIrrigacao = new ArrayList<>();
 
