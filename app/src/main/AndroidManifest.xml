@@ -23,7 +23,10 @@
             android:name=".CarregamentoActivity"
             android:exported="true" />
         <activity
-            android:name=".ControleActivity"
+            android:name=".LoginActivity"
+            android:exported="true" />
+        <activity
+            android:name=".CadastroActivity"
             android:exported="true" />
         <activity
             android:name=".DashboardActivity"
