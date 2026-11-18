@@ -2,6 +2,8 @@ package com.example.smartberry;
 
 import android.widget.Toast;
 
+import com.example.smartberry.adapters.HorarioAdapter;
+import com.example.smartberry.models.Horario;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.timepicker.MaterialTimePicker;
@@ -20,7 +22,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -81,7 +82,7 @@ public class ControleActivity extends BaseActivity {
 
     private void abrirNovoHorario(String processo, List<Horario> dados, HorarioAdapter adapter) {
         BottomSheetDialog sheet = new BottomSheetDialog(this);
-        View v = getLayoutInflater().inflate(R.layout.bottom_sheet_controle, null);
+        View v = getLayoutInflater().inflate(R.layout.item_bottom_sheet_controle, null);
         sheet.setContentView(v);
 
         TextView titulo = v.findViewById(R.id.txtTituloSheet);
@@ -138,7 +139,7 @@ public class ControleActivity extends BaseActivity {
     }
     private void mostrarAlerta(String mensagem, int iconeRes) {
         ViewGroup raiz = findViewById(android.R.id.content);
-        View alerta = getLayoutInflater().inflate(R.layout.alerta_controle, raiz, false);
+        View alerta = getLayoutInflater().inflate(R.layout.item_alerta_controle, raiz, false);
         ((TextView) alerta.findViewById(R.id.txtAlerta)).setText(mensagem);
         ((ImageView) alerta.findViewById(R.id.imgAlerta)).setImageResource(iconeRes);
         float d = getResources().getDisplayMetrics().density;
