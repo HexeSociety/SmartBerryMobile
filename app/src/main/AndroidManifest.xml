@@ -23,16 +23,13 @@
             android:name=".CarregamentoActivity"
             android:exported="true" />
         <activity
-            android:name=".ControleActivity"
-            android:exported="true" />
-        <activity
             android:name=".DashboardActivity"
-            android:exported="false"
+            android:exported="true"
             android:theme="@style/Theme.SmartBerry"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".PerfilActivity"
-            android:exported="false" />
+            android:exported="true" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -49,6 +46,10 @@
 
         <activity
             android:name=".BaseActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".MonitoramentoActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
     </application>
