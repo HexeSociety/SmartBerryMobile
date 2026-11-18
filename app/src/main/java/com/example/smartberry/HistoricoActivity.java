@@ -8,6 +8,9 @@ import androidx.activity.EdgeToEdge;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.smartberry.adapters.CicloAdapter;
+import com.example.smartberry.models.Ciclo;
+
 import java.util.ArrayList;
 import java.util.List;
 

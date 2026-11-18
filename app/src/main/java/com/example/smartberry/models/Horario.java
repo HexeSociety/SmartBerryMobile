@@ -1,4 +1,4 @@
-package com.example.smartberry;
+package com.example.smartberry.models;
 
 public class Horario {
     private final String hora;       // "06:00"
