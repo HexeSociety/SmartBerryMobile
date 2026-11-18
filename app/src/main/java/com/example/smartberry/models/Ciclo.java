@@ -1,4 +1,4 @@
-package com.example.smartberry;
+package com.example.smartberry.models;
 public class Ciclo {
     private final String data;      // "Ontem, 18:00"
     private final String modo;      // "Automático" ou "Manual"
