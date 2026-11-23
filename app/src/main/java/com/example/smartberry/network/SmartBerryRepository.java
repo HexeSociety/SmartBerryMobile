@@ -16,50 +16,50 @@ import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
 public final class SmartBerryRepository {
-    private static final String DISCOVERY_PATH = "/api/esp32/automatico";
-    private String deviceId = BuildConfig.SMARTBERRY_ESP32_ID.trim();
+    private static final String CAMINHO_DESCOBERTA = "/api/esp32/automatico";
+    private String esp32Id = BuildConfig.SMARTBERRY_ESP32_ID.trim();
 
     public JSONObject leitura() throws Exception {
-        return new JSONObject(request("GET", devicePath("/api/sensores/esp32/") + "/ultima", null));
+        return new JSONObject(requisitar("GET", caminhoPlaca("/api/sensores/esp32/") + "/ultima", null));
     }
 
     public JSONObject resumo() throws Exception {
-        return new JSONObject(request("GET", devicePath("/api/monitoramento/") + "/atual", null));
+        return new JSONObject(requisitar("GET", caminhoPlaca("/api/monitoramento/") + "/atual", null));
     }
 
     public JSONArray grafico24h() throws Exception {
-        return new JSONArray(request("GET", devicePath("/api/monitoramento/")
+        return new JSONArray(requisitar("GET", caminhoPlaca("/api/monitoramento/")
                 + "/grafico?horas=24", null));
     }
 
     public JSONArray grafico(int dias) throws Exception {
         String periodo = dias == 1 ? "/grafico?hoje=true" : "/historico?dias=" + dias;
-        return new JSONArray(request("GET", devicePath("/api/monitoramento/") + periodo, null));
+        return new JSONArray(requisitar("GET", caminhoPlaca("/api/monitoramento/") + periodo, null));
     }
 
     public JSONArray historicoIrrigacao(int dias) throws Exception {
-        return new JSONArray(request("GET", devicePath("/api/comandos/esp32/")
+        return new JSONArray(requisitar("GET", caminhoPlaca("/api/comandos/esp32/")
                 + "/historico-irrigacao?dias=" + dias, null));
     }
 
     public String enviarComando(String tipo, Integer valor) throws Exception {
-        JSONObject body = new JSONObject().put("esp32Id", resolveDeviceId())
+        JSONObject body = new JSONObject().put("esp32Id", resolverIdPlaca())
                 .put("tipo", tipo);
         if (valor != null) body.put("valor", valor);
-        return new JSONObject(request("POST", "/api/comandos", body)).getString("id");
+        return new JSONObject(requisitar("POST", "/api/comandos", body)).getString("id");
     }
 
     public JSONArray listarAgendamentos(boolean irrigacao) throws Exception {
-        return new JSONArray(request("GET", caminhoAgendamentos(irrigacao), null));
+        return new JSONArray(requisitar("GET", caminhoAgendamentos(irrigacao), null));
     }
 
     public boolean modoDiario(boolean irrigacao) throws Exception {
-        return new JSONObject(request("GET", caminhoAgendamentos(irrigacao) + "/automatico", null))
+        return new JSONObject(requisitar("GET", caminhoAgendamentos(irrigacao) + "/automatico", null))
                 .getBoolean("ativo");
     }
 
     public boolean alterarModoDiario(boolean irrigacao, boolean ativo) throws Exception {
-        return new JSONObject(request("PUT", caminhoAgendamentos(irrigacao) + "/automatico",
+        return new JSONObject(requisitar("PUT", caminhoAgendamentos(irrigacao) + "/automatico",
                 new JSONObject().put("ativo", ativo))).getBoolean("ativo");
     }
 
@@ -68,38 +68,38 @@ public final class SmartBerryRepository {
         JSONObject dados = new JSONObject().put("horario", horario)
                 .put("duracaoSegundos", duracaoSegundos).put("diario", diario);
         String caminho = caminhoAgendamentos(irrigacao);
-        if (id == null) request("POST", caminho, dados);
-        else request("PUT", caminho + "/" + Uri.encode(id), dados);
+        if (id == null) requisitar("POST", caminho, dados);
+        else requisitar("PUT", caminho + "/" + Uri.encode(id), dados);
     }
 
     public void excluirAgendamento(boolean irrigacao, String id) throws Exception {
-        request("DELETE", caminhoAgendamentos(irrigacao) + "/" + Uri.encode(id), null);
+        requisitar("DELETE", caminhoAgendamentos(irrigacao) + "/" + Uri.encode(id), null);
     }
 
     private String caminhoAgendamentos(boolean irrigacao) throws Exception {
-        if (deviceId.isEmpty()) {
-            deviceId = new JSONObject(request("GET", DISCOVERY_PATH + "?incluirOffline=true", null)).getString("id");
+        if (esp32Id.isEmpty()) {
+            esp32Id = new JSONObject(requisitar("GET", CAMINHO_DESCOBERTA + "?incluirOffline=true", null)).getString("id");
         }
-        return devicePath("/api/esp32/") + (irrigacao ? "/agendamentos-irrigacao" : "/agendamentos-ventilacao");
+        return caminhoPlaca("/api/esp32/") + (irrigacao ? "/agendamentos-irrigacao" : "/agendamentos-ventilacao");
     }
 
-    public String statusComando(String id) throws Exception {
-        return new JSONObject(request("GET", "/api/comandos/" + Uri.encode(id), null))
+    public String consultarStatusComando(String id) throws Exception {
+        return new JSONObject(requisitar("GET", "/api/comandos/" + Uri.encode(id), null))
                 .getString("status");
     }
 
-    private String devicePath(String prefix) throws Exception {
-        return prefix + Uri.encode(resolveDeviceId());
+    private String caminhoPlaca(String prefix) throws Exception {
+        return prefix + Uri.encode(resolverIdPlaca());
     }
 
-    private String resolveDeviceId() throws Exception {
-        if (deviceId.isEmpty()) {
-            deviceId = new JSONObject(request("GET", DISCOVERY_PATH, null)).getString("id");
+    private String resolverIdPlaca() throws Exception {
+        if (esp32Id.isEmpty()) {
+            esp32Id = new JSONObject(requisitar("GET", CAMINHO_DESCOBERTA, null)).getString("id");
         }
-        return deviceId;
+        return esp32Id;
     }
 
-    private String request(String method, String path, JSONObject body) throws IOException {
+    private String requisitar(String method, String path, JSONObject body) throws IOException {
         if (BuildConfig.SMARTBERRY_API_KEY.isEmpty()) {
             throw new IOException("Configure a chave da API");
         }
@@ -120,7 +120,7 @@ public final class SmartBerryRepository {
             }
             int status = connection.getResponseCode();
             if (status == 401) throw new IOException("Chave da API inválida");
-            if (path.equals(DISCOVERY_PATH) || path.startsWith(DISCOVERY_PATH + "?")) {
+            if (path.equals(CAMINHO_DESCOBERTA) || path.startsWith(CAMINHO_DESCOBERTA + "?")) {
                 if (status == 404) throw new IOException("Aguardando leituras do ESP32");
                 if (status == 409) throw new IOException("Mais de um ESP32 online");
             }

@@ -21,7 +21,7 @@ final class Conta {
 
     private Conta() {}
 
-    static FirebaseAuth auth() {
+    static FirebaseAuth autenticacao() {
         try {
             return FirebaseAuth.getInstance();
         } catch (IllegalStateException semConfiguracao) {
@@ -30,7 +30,7 @@ final class Conta {
     }
 
     static FirebaseUser usuario() {
-        FirebaseAuth auth = auth();
+        FirebaseAuth auth = autenticacao();
         return auth == null ? null : auth.getCurrentUser();
     }
 
@@ -103,7 +103,7 @@ final class Conta {
 
     static void finalizarSessao(Context context) {
         uidSessaoAtual = null;
-        FirebaseAuth auth = auth();
+        FirebaseAuth auth = autenticacao();
         if (auth != null) auth.signOut();
         preferencias(context).edit().remove("sessao").apply();
     }

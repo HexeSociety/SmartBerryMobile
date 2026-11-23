@@ -49,13 +49,13 @@ public class HistoricoActivity extends BaseActivity {
         humidityLegend = textoExistente(root, "Umid. Média (70%)");
         temperatureLegend.setText("Temperatura (°C)");
         humidityLegend.setText("Umidade (%)");
-        today.setOnClickListener(v -> load(1));
-        week.setOnClickListener(v -> load(7));
-        month.setOnClickListener(v -> load(30));
-        load(1);
+        today.setOnClickListener(v -> carregar(1));
+        week.setOnClickListener(v -> carregar(7));
+        month.setOnClickListener(v -> carregar(30));
+        carregar(1);
     }
 
-    private void load(int days) {
+    private void carregar(int days) {
         today.setSelected(days == 1);
         week.setSelected(days == 7);
         month.setSelected(days == 30);
@@ -65,7 +65,7 @@ public class HistoricoActivity extends BaseActivity {
         chart.setBackground(null);
         ciclos.clear();
         adapter.notifyDataSetChanged();
-        consultar(() -> repository.grafico(days), data -> {
+        consultar(() -> repositorio.grafico(days), data -> {
             if (selection != request) return;
             chart.setBackground(new ChartDrawable(data, true, true));
             readingStatus.setText(data.length() == 0 ? "Sem leituras no período"
@@ -73,14 +73,14 @@ public class HistoricoActivity extends BaseActivity {
         }, error -> {
             if (selection == request) readingStatus.setText(SmartBerryRepository.mensagem(error));
         });
-        consultar(() -> repository.historicoIrrigacao(days), data -> {
-            if (selection == request) showCycles(data);
+        consultar(() -> repositorio.historicoIrrigacao(days), data -> {
+            if (selection == request) exibirCiclos(data);
         }, error -> {
             if (selection == request) cycleStatus.setText(SmartBerryRepository.mensagem(error));
         });
     }
 
-    private void showCycles(JSONArray data) {
+    private void exibirCiclos(JSONArray data) {
         for (int i = 0; i < data.length(); i++) {
             JSONObject command = data.optJSONObject(i);
             if (command == null) continue;

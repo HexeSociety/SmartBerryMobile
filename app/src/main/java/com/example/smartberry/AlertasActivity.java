@@ -65,7 +65,7 @@ public class AlertasActivity extends BaseActivity {
     private final Runnable refresher = new Runnable() {
         @Override
         public void run() {
-            fetchAllData();
+            buscarDados();
             handler.postDelayed(this, 30_000);
         }
     };
@@ -92,7 +92,7 @@ public class AlertasActivity extends BaseActivity {
     // ---------------------------------------------------------------------
     private static final int REQUEST_CODE_POST_NOTIFICATIONS = 1001;
 
-    private void checkAndRequestNotificationPermission() {
+    private void solicitarPermissaoNotificacoes() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
                     != PackageManager.PERMISSION_GRANTED) {
@@ -132,16 +132,16 @@ public class AlertasActivity extends BaseActivity {
             return insets;
         });
 
-        bindViews();
+        vincularComponentes();
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         // Create notification channel (no‑op on pre‑O devices)
-        createNotificationChannel();
+        criarCanalNotificacoes();
         // Request notification permission (Android 13+)
-        checkAndRequestNotificationPermission();
+        solicitarPermissaoNotificacoes();
 
         // Immediate fetch and start periodic refresh.
-        fetchAllData();
+        buscarDados();
         handler.postDelayed(refresher, 30_000);
     }
 
@@ -153,7 +153,7 @@ public class AlertasActivity extends BaseActivity {
     }
 
     /** Bind all TextView fields to their IDs defined in the layout. */
-    private void bindViews() {
+    private void vincularComponentes() {
         dataHoraTempAlta = findViewById(R.id.dataHoraTempAlta);
         descricaoTempAlta = findViewById(R.id.descricaoTempAlta);
         dataHoraUmidadeBaixa = findViewById(R.id.dataHoraUmidadeBaixa);
@@ -166,8 +166,8 @@ public class AlertasActivity extends BaseActivity {
         descricaoIrrigacaoConcluida = findViewById(R.id.descricaoIriigacaoConcluida);
     }
 
-    private void fetchAllData() {
-        consultar(repository::leitura, data -> {
+    private void buscarDados() {
+        consultar(repositorio::leitura, data -> {
             String stamp = data.optString("dataRegistro").replace('T', ' ');
             if (stamp.length() > 19) stamp = stamp.substring(0, 19);
             dataHoraTempAlta.setText(stamp);
@@ -184,7 +184,7 @@ public class AlertasActivity extends BaseActivity {
                     ? "Sensor respondendo" : "Aguardando nova leitura do ESP32");
             if (!recent) return;
             double temperature = data.optDouble("temperatura", Double.NaN);
-            if (Double.isFinite(temperature)) checkTemperatureLimits(temperature);
+            if (Double.isFinite(temperature)) verificarLimitesTemperatura(temperature);
             if (!data.isNull("irrigacaoLigada")) {
                 newIrrigacaoLigada = data.optBoolean("irrigacaoLigada");
                 irrigacaoDataHora = stamp;
@@ -198,7 +198,7 @@ public class AlertasActivity extends BaseActivity {
                 ventilacaoChanged = prevVentilacaoLigada != null
                         && !prevVentilacaoLigada.equals(newVentilacaoLigada);
             }
-            processIrrigacaoVentilacaoChanges();
+            processarMudancasAtuadores();
         }, error -> {
             descricaoTempAlta.setText("Temperatura: —");
             descricaoUmidadeBaixa.setText("Umidade: —");
@@ -214,7 +214,7 @@ public class AlertasActivity extends BaseActivity {
     }
 
     /** Process combined changes for irrigation and ventilation after both have been fetched. */
-    private void processIrrigacaoVentilacaoChanges() {
+    private void processarMudancasAtuadores() {
         // Update UI for irrigation (always show the latest state)
         if (newIrrigacaoLigada != null) {
             descricaoIrrigacaoConcluida.setText("Irrigação: " + (newIrrigacaoLigada ? "Ligada" : "Desligada"));
@@ -225,17 +225,17 @@ public class AlertasActivity extends BaseActivity {
             String combinedMsg = irrigacaoMsg + " e " + ventilacaoMsg;
             Toast.makeText(this, combinedMsg, Toast.LENGTH_SHORT).show();
             if (notificationsEnabled) {
-                showNotification(NOTIF_ID_IRRIG, "Irrigação/Ventilação", combinedMsg);
+                mostrarNotificacao(NOTIF_ID_IRRIG, "Irrigação/Ventilação", combinedMsg);
             }
         } else if (irrigacaoChanged) {
             Toast.makeText(this, irrigacaoMsg, Toast.LENGTH_SHORT).show();
             if (notificationsEnabled) {
-                showNotification(NOTIF_ID_IRRIG, "Irrigação", irrigacaoMsg);
+                mostrarNotificacao(NOTIF_ID_IRRIG, "Irrigação", irrigacaoMsg);
             }
         } else if (ventilacaoChanged) {
             Toast.makeText(this, ventilacaoMsg, Toast.LENGTH_SHORT).show();
             if (notificationsEnabled) {
-                showNotification(NOTIF_ID_VENT, "Ventilação", ventilacaoMsg);
+                mostrarNotificacao(NOTIF_ID_VENT, "Ventilação", ventilacaoMsg);
             }
         }
         // Update previous state values
@@ -256,7 +256,7 @@ public class AlertasActivity extends BaseActivity {
     }
 
     /** Checks temperature against user‑defined limits stored in SharedPreferences. */
-    private void checkTemperatureLimits(double temperatura) {
+    private void verificarLimitesTemperatura(double temperatura) {
         if (!prefs.contains(PREF_MIN_TEMP) || !prefs.contains(PREF_MAX_TEMP)) {
             return; // limits not configured yet
         }
@@ -267,7 +267,7 @@ public class AlertasActivity extends BaseActivity {
                 String msg = "Temperatura abaixo do mínimo";
                 Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
                 if (notificationsEnabled) {
-                    showNotification(NOTIF_ID_TEMP, "Temperatura", msg);
+                    mostrarNotificacao(NOTIF_ID_TEMP, "Temperatura", msg);
                 }
                 tempLowAlertShown = true;
                 tempHighAlertShown = false;
@@ -277,7 +277,7 @@ public class AlertasActivity extends BaseActivity {
                 String msg = "Temperatura acima do máximo";
                 Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
                 if (notificationsEnabled) {
-                    showNotification(NOTIF_ID_TEMP, "Temperatura", msg);
+                    mostrarNotificacao(NOTIF_ID_TEMP, "Temperatura", msg);
                 }
                 tempHighAlertShown = true;
                 tempLowAlertShown = false;
@@ -290,7 +290,7 @@ public class AlertasActivity extends BaseActivity {
     }
 
     /** Public API to set temperature limits programmatically. */
-    public void setTemperatureLimits(float min, float max) {
+    public void definirLimitesTemperatura(float min, float max) {
         if (min >= max) {
             throw new IllegalArgumentException("Valor mínimo deve ser menor que o máximo");
         }
@@ -301,14 +301,14 @@ public class AlertasActivity extends BaseActivity {
     }
 
     /** Retrieve the currently stored limits (may be NaN if not set). */
-    public float[] getTemperatureLimits() {
+    public float[] obterLimitesTemperatura() {
         float min = prefs.getFloat(PREF_MIN_TEMP, Float.NaN);
         float max = prefs.getFloat(PREF_MAX_TEMP, Float.NaN);
         return new float[]{min, max};
     }
 
     /** Create a notification channel for Android O and above. */
-    private void createNotificationChannel() {
+    private void criarCanalNotificacoes() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
                     CHANNEL_ID,
@@ -324,7 +324,7 @@ public class AlertasActivity extends BaseActivity {
     }
 
     /** Show a notification; reuses same ID to replace previous notification of the same type. */
-    private void showNotification(int id, String title, String text) {
+    private void mostrarNotificacao(int id, String title, String text) {
         // Guard against posting when permission not granted
         if (!notificationsEnabled) return;
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)

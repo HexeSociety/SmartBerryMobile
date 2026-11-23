@@ -16,8 +16,8 @@ import java.util.Date;
 import java.util.Locale;
 
 final class ChartDrawable extends Drawable {
-    private static final int TEMPERATURE_COLOR = Color.rgb(53, 167, 54);
-    private static final int HUMIDITY_COLOR = Color.rgb(139, 53, 200);
+    private static final int COR_TEMPERATURA = Color.rgb(53, 167, 54);
+    private static final int COR_UMIDADE = Color.rgb(139, 53, 200);
     private final JSONArray points;
     private final boolean temperature;
     private final boolean humidity;
@@ -47,15 +47,15 @@ final class ChartDrawable extends Drawable {
 
     @Override
     public void draw(Canvas canvas) {
-        if (temperature) drawSeries(canvas, "temperaturaMedia", TEMPERATURE_COLOR);
-        if (humidity) drawSeries(canvas, "umidadeMedia", HUMIDITY_COLOR);
+        if (temperature) desenharSerie(canvas, "temperaturaMedia", COR_TEMPERATURA);
+        if (humidity) desenharSerie(canvas, "umidadeMedia", COR_UMIDADE);
     }
 
-    private void drawSeries(Canvas canvas, String field, int color) {
+    private void desenharSerie(Canvas canvas, String field, int color) {
         double min = Double.POSITIVE_INFINITY;
         double max = Double.NEGATIVE_INFINITY;
         for (int i = 0; i < points.length(); i++) {
-            double value = valueAt(i, field);
+            double value = valorNaPosicao(i, field);
             if (Double.isFinite(value)) {
                 min = Math.min(min, value);
                 max = Math.max(max, value);
@@ -71,7 +71,7 @@ final class ChartDrawable extends Drawable {
         float previousX = 0;
         float previousY = Float.NaN;
         for (int i = 0; i < points.length(); i++) {
-            double value = valueAt(i, field);
+            double value = valorNaPosicao(i, field);
             if (!Double.isFinite(value)) {
                 previousY = Float.NaN;
                 continue;
@@ -88,7 +88,7 @@ final class ChartDrawable extends Drawable {
         }
     }
 
-    private double valueAt(int index, String field) {
+    private double valorNaPosicao(int index, String field) {
         JSONObject point = points.optJSONObject(index);
         return point == null ? Double.NaN : point.optDouble(field, Double.NaN);
     }

@@ -20,10 +20,10 @@ import java.util.Locale;
 
 public class DashboardActivity extends BaseActivity {
 
-    private final Handler refresh = new Handler(Looper.getMainLooper());
-    private final Runnable refreshReadings = this::loadReading;
-    private TextView temperature, humidity, status, subtitle, pump, fan;
-    private TextView temperatureBadge, humidityBadge;
+    private final Handler atualizacao = new Handler(Looper.getMainLooper());
+    private final Runnable atualizarLeituras = this::carregarLeitura;
+    private TextView temperatura, umidade, status, subtitulo, bomba, ventilador;
+    private TextView seloTemperatura, seloUmidade;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,26 +33,26 @@ public class DashboardActivity extends BaseActivity {
         configurarNavbar(R.id.nav_inicio);
 
         View root = findViewById(android.R.id.content);
-        temperature = textoExistente(root, "24°C");
-        humidity = textoExistente(root, "68%");
-        temperatureBadge = textoExistente((View) temperature.getParent(), "Ideal");
-        humidityBadge = textoExistente((View) humidity.getParent(), "Ideal");
+        temperatura = textoExistente(root, "24°C");
+        umidade = textoExistente(root, "68%");
+        seloTemperatura = textoExistente((View) temperatura.getParent(), "Ideal");
+        seloUmidade = textoExistente((View) umidade.getParent(), "Ideal");
         status = textoExistente(root, "ONLINE");
-        subtitle = textoExistente(root, "Estufa ativa e monitorada");
+        subtitulo = textoExistente(root, "Estufa ativa e monitorada");
         TextView name = textoExistente(root, "Estufa Morangos SP");
         name.setText("Estufa monitorada");
         textoExistente(root, "Olá, João!").setText("SmartBerry 360°");
         textoExistente(root, "Área: 1.200 m²    •    Variedade: Albion").setText("Monitoramento local");
-        pump = actuatorState(root, "Irrigação");
-        fan = actuatorState(root, "Ventilação");
+        bomba = encontrarEstadoAtuador(root, "Irrigação");
+        ventilador = encontrarEstadoAtuador(root, "Ventilação");
         findViewById(R.id.btn_historico).setOnClickListener(v ->
                 startActivity(new Intent(this, HistoricoActivity.class)));
-        render(new JSONObject(), "Carregando leituras…");
-        consultar(repository::resumo, data -> name.setText(data.optString("nomeDispositivo",
+        exibirLeitura(new JSONObject(), "Carregando leituras…");
+        consultar(repositorio::resumo, data -> name.setText(data.optString("nomeDispositivo",
                 "Estufa monitorada")), error -> { });
     }
 
-    private TextView actuatorState(View root, String label) {
+    private TextView encontrarEstadoAtuador(View root, String label) {
         TextView heading = textoExistente(root, label);
         View section = (View) heading.getParent();
         section.setOnClickListener(v -> startActivity(new Intent(this, ControleActivity.class)));
@@ -62,32 +62,32 @@ public class DashboardActivity extends BaseActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        refresh.post(refreshReadings);
+        atualizacao.post(atualizarLeituras);
     }
 
     @Override
     protected void onStop() {
-        refresh.removeCallbacks(refreshReadings);
+        atualizacao.removeCallbacks(atualizarLeituras);
         super.onStop();
     }
 
-    private void loadReading() {
-        consultar(repository::leitura, data -> render(data,
+    private void carregarLeitura() {
+        consultar(repositorio::leitura, data -> exibirLeitura(data,
                         leituraRecente(data) ? "Estufa ativa e monitorada" : "Última leitura disponível"),
-                error -> render(new JSONObject(), SmartBerryRepository.mensagem(error)));
-        refresh.postDelayed(refreshReadings, 7000);
+                error -> exibirLeitura(new JSONObject(), SmartBerryRepository.mensagem(error)));
+        atualizacao.postDelayed(atualizarLeituras, 7000);
     }
 
-    private void render(JSONObject data, String message) {
+    private void exibirLeitura(JSONObject data, String message) {
         boolean online = leituraRecente(data);
-        temperature.setText(SmartBerryRepository.medida(data, "temperatura", "°C"));
-        humidity.setText(SmartBerryRepository.medida(data, "umidade", "%"));
-        temperatureBadge.setText(faixa(data, "temperatura", 20, 26, online));
-        humidityBadge.setText(faixa(data, "umidade", 50, 70, online));
+        temperatura.setText(SmartBerryRepository.medida(data, "temperatura", "°C"));
+        umidade.setText(SmartBerryRepository.medida(data, "umidade", "%"));
+        seloTemperatura.setText(faixa(data, "temperatura", 20, 26, online));
+        seloUmidade.setText(faixa(data, "umidade", 50, 70, online));
         status.setText(online ? "ONLINE" : "—");
-        subtitle.setText(message);
-        pump.setText(online ? estado(data, "irrigacaoLigada") : "—");
-        fan.setText(online ? estado(data, "ventilacaoLigada") : "—");
+        subtitulo.setText(message);
+        bomba.setText(online ? estado(data, "irrigacaoLigada") : "—");
+        ventilador.setText(online ? estado(data, "ventilacaoLigada") : "—");
     }
 
     private String faixa(JSONObject data, String key, double min, double max, boolean online) {

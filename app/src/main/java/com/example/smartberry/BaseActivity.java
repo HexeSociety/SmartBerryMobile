@@ -17,21 +17,21 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class BaseActivity extends AppCompatActivity {
-    protected final SmartBerryRepository repository = new SmartBerryRepository();
-    private final ExecutorService requests = Executors.newSingleThreadExecutor();
+    protected final SmartBerryRepository repositorio = new SmartBerryRepository();
+    private final ExecutorService requisicoes = Executors.newSingleThreadExecutor();
 
-    protected <T> void consultar(Callable<T> request, Consumer<T> success,
-                                 Consumer<Exception> failure) {
+    protected <T> void consultar(Callable<T> requisicao, Consumer<T> sucesso,
+                                 Consumer<Exception> falha) {
         if (!Conta.sessaoAtiva(this)) return;
-        requests.execute(() -> {
+        requisicoes.execute(() -> {
             try {
-                T data = request.call();
+                T data = requisicao.call();
                 runOnUiThread(() -> {
-                    if (!isFinishing() && !isDestroyed()) success.accept(data);
+                    if (!isFinishing() && !isDestroyed()) sucesso.accept(data);
                 });
             } catch (Exception error) {
                 runOnUiThread(() -> {
-                    if (!isFinishing() && !isDestroyed()) failure.accept(error);
+                    if (!isFinishing() && !isDestroyed()) falha.accept(error);
                 });
             }
         });
@@ -64,7 +64,7 @@ public class BaseActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        requests.shutdownNow();
+        requisicoes.shutdownNow();
         super.onDestroy();
     }
 

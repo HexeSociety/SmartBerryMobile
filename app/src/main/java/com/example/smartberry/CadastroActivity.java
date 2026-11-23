@@ -70,7 +70,7 @@ public class CadastroActivity extends AppCompatActivity {
 
     private void criarConta(Intent estufa) {
         if (!validar()) return;
-        FirebaseAuth auth = Conta.auth();
+        FirebaseAuth auth = Conta.autenticacao();
         if (auth == null) {
             Conta.mensagem(this, "Configure o Firebase para cadastrar usuários.");
             return;

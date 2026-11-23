@@ -54,7 +54,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private FirebaseAuth autenticar() {
-        FirebaseAuth auth = Conta.auth();
+        FirebaseAuth auth = Conta.autenticacao();
         if (auth == null) Conta.mensagem(this, "Configure o Firebase para usar o login.");
         return auth;
     }

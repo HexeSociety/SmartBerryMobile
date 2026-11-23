@@ -48,12 +48,12 @@ public class MonitoramentoActivity extends BaseActivity {
         microclimate = findViewById(R.id.txtStatusMicroclima);
         subtitle.setText("Carregando leituras…");
         selecionar(true);
-        consultar(repository::resumo, data -> {
+        consultar(repositorio::resumo, data -> {
             summary = data;
             subtitle.setText("Histórico detalhado das últimas 24h");
             selecionar(temperature);
         }, error -> subtitle.setText(SmartBerryRepository.mensagem(error)));
-        consultar(repository::grafico24h, data -> {
+        consultar(repositorio::grafico24h, data -> {
             graphEnd = System.currentTimeMillis();
             atualizarEixo();
             graph = data;

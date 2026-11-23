@@ -18,14 +18,14 @@ import org.json.JSONObject;
 public class ControleActivity extends BaseActivity {
 
     private static final int DURACAO_IRRIGACAO_SEGUNDOS = 30;
-    private final Handler refresh = new Handler(Looper.getMainLooper());
-    private final Runnable refreshState = this::loadState;
-    private Button pump, fan;
+    private final Handler atualizacao = new Handler(Looper.getMainLooper());
+    private final Runnable atualizarEstado = this::carregarEstado;
+    private Button bomba, ventilador;
     private Agendamentos agendamentosIrrigacao, agendamentosVentilacao;
-    private boolean waitingForCommand;
-    private boolean visible;
-    private boolean stateLoaded;
-    private boolean connectionErrorShown;
+    private boolean aguardandoComando;
+    private boolean visivel;
+    private boolean estadoCarregado;
+    private boolean erroConexaoExibido;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,12 +34,12 @@ public class ControleActivity extends BaseActivity {
         setContentView(R.layout.activity_controle);
         configurarNavbar(R.id.nav_controle);
 
-        pump = findViewById(R.id.btnIrrigar);
-        fan = findViewById(R.id.btnVentilar);
-        pump.setOnClickListener(v -> control(pump.isActivated(), true));
-        fan.setOnClickListener(v -> control(fan.isActivated(), false));
-        pump.setEnabled(false);
-        fan.setEnabled(false);
+        bomba = findViewById(R.id.btnIrrigar);
+        ventilador = findViewById(R.id.btnVentilar);
+        bomba.setOnClickListener(v -> controlar(bomba.isActivated(), true));
+        ventilador.setOnClickListener(v -> controlar(ventilador.isActivated(), false));
+        bomba.setEnabled(false);
+        ventilador.setEnabled(false);
 
         agendamentosIrrigacao = new Agendamentos(this, true);
         agendamentosVentilacao = new Agendamentos(this, false);
@@ -48,62 +48,62 @@ public class ControleActivity extends BaseActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        visible = true;
+        visivel = true;
         agendamentosIrrigacao.iniciar();
         agendamentosVentilacao.iniciar();
-        refresh.post(refreshState);
+        atualizacao.post(atualizarEstado);
     }
 
     @Override
     protected void onStop() {
-        visible = false;
+        visivel = false;
         agendamentosIrrigacao.parar();
         agendamentosVentilacao.parar();
-        refresh.removeCallbacks(refreshState);
+        atualizacao.removeCallbacks(atualizarEstado);
         super.onStop();
     }
 
-    private void loadState() {
-        if (waitingForCommand) return;
-        consultar(repository::leitura, data -> {
-            if (waitingForCommand || !visible) return;
-            stateLoaded = DashboardActivity.leituraRecente(data);
-            render(pump, data, "irrigacaoLigada", "Irrigar Agora", "Parar Irrigação");
-            render(fan, data, "ventilacaoLigada", "Ventilar Agora", "Parar Ventilação");
-            if (!stateLoaded) showConnectionError("Aguardando uma leitura recente do ESP32");
-            else connectionErrorShown = false;
-            refresh.postDelayed(refreshState, 3000);
+    private void carregarEstado() {
+        if (aguardandoComando) return;
+        consultar(repositorio::leitura, data -> {
+            if (aguardandoComando || !visivel) return;
+            estadoCarregado = DashboardActivity.leituraRecente(data);
+            exibirEstado(bomba, data, "irrigacaoLigada", "Irrigar Agora", "Parar Irrigação");
+            exibirEstado(ventilador, data, "ventilacaoLigada", "Ventilar Agora", "Parar Ventilação");
+            if (!estadoCarregado) mostrarErroConexao("Aguardando uma leitura recente do ESP32");
+            else erroConexaoExibido = false;
+            atualizacao.postDelayed(atualizarEstado, 3000);
         }, error -> {
-            if (waitingForCommand || !visible) return;
-            stateLoaded = false;
-            pump.setEnabled(false);
-            fan.setEnabled(false);
-            showConnectionError(SmartBerryRepository.mensagem(error));
-            refresh.postDelayed(refreshState, 3000);
+            if (aguardandoComando || !visivel) return;
+            estadoCarregado = false;
+            bomba.setEnabled(false);
+            ventilador.setEnabled(false);
+            mostrarErroConexao(SmartBerryRepository.mensagem(error));
+            atualizacao.postDelayed(atualizarEstado, 3000);
         });
     }
 
-    private void render(Button button, JSONObject data, String key, String start, String stop) {
-        if (!stateLoaded || data.isNull(key)) {
+    private void exibirEstado(Button button, JSONObject data, String key, String start, String stop) {
+        if (!estadoCarregado || data.isNull(key)) {
             button.setEnabled(false);
             return;
         }
-        setState(button, data.optBoolean(key), start, stop);
+        definirEstado(button, data.optBoolean(key), start, stop);
         button.setEnabled(true);
     }
 
-    private void setState(Button button, boolean active, String start, String stop) {
+    private void definirEstado(Button button, boolean active, String start, String stop) {
         button.setActivated(active);
         button.setText(active ? stop : start);
         button.setBackgroundTintList(ColorStateList.valueOf(
                 Color.parseColor(active ? "#D32F2F" : "#35A736")));
     }
 
-    private void control(boolean active, boolean irrigation) {
+    private void controlar(boolean active, boolean irrigation) {
         String type = irrigation ? (active ? "PARAR_IRRIGACAO" : "ACIONAR_IRRIGACAO")
                 : (active ? "DESLIGAR_VENTILACAO" : "LIGAR_VENTILACAO");
         if (active) {
-            send(type, null);
+            enviar(type, null);
             return;
         }
         new MaterialAlertDialogBuilder(this)
@@ -112,61 +112,61 @@ public class ControleActivity extends BaseActivity {
                         : "A ventilação ficará ligada até receber o comando de parada.")
                 .setNegativeButton("Cancelar", null)
                 .setPositiveButton("Confirmar", (dialog, which) ->
-                        send(type, irrigation ? DURACAO_IRRIGACAO_SEGUNDOS : null))
+                        enviar(type, irrigation ? DURACAO_IRRIGACAO_SEGUNDOS : null))
                 .show();
     }
 
-    private void send(String type, Integer value) {
-        if (!stateLoaded || waitingForCommand) return;
-        waitingForCommand = true;
-        refresh.removeCallbacks(refreshState);
-        pump.setEnabled(false);
-        fan.setEnabled(false);
-        toast("Enviando comando…");
-        consultar(() -> repository.enviarComando(type, value), id -> awaitCommand(id, 15),
-                error -> finishCommand(SmartBerryRepository.mensagem(error)));
+    private void enviar(String type, Integer value) {
+        if (!estadoCarregado || aguardandoComando) return;
+        aguardandoComando = true;
+        atualizacao.removeCallbacks(atualizarEstado);
+        bomba.setEnabled(false);
+        ventilador.setEnabled(false);
+        mostrarMensagem("Enviando comando…");
+        consultar(() -> repositorio.enviarComando(type, value), id -> aguardarComando(id, 15),
+                error -> finalizarComando(SmartBerryRepository.mensagem(error)));
     }
 
-    private void awaitCommand(String id, int attempts) {
-        consultar(() -> repository.statusComando(id), status -> {
+    private void aguardarComando(String id, int attempts) {
+        consultar(() -> repositorio.consultarStatusComando(id), status -> {
             if ("EXECUTADO".equals(status)) {
-                finishCommand("Comando executado pelo ESP32");
+                finalizarComando("Comando executado pelo ESP32");
             } else if ("REJEITADO".equals(status)) {
-                finishCommand("O ESP32 rejeitou o comando. Verifique o modo automático.");
+                finalizarComando("O ESP32 rejeitou o comando. Verifique o modo automático.");
             } else {
-                retryCommand(id, attempts);
+                repetirConsulta(id, attempts);
             }
-        }, error -> retryCommand(id, attempts));
+        }, error -> repetirConsulta(id, attempts));
     }
 
-    private void retryCommand(String id, int attempts) {
+    private void repetirConsulta(String id, int attempts) {
         if (attempts <= 1) {
-            finishCommand("Execução ainda sem confirmação. Consulte o estado do ESP32.");
+            finalizarComando("Execução ainda sem confirmação. Consulte o estado do ESP32.");
         } else {
-            refresh.postDelayed(() -> awaitCommand(id, attempts - 1), 1000);
+            atualizacao.postDelayed(() -> aguardarComando(id, attempts - 1), 1000);
         }
     }
 
-    private void finishCommand(String message) {
-        waitingForCommand = false;
-        if (visible) {
-            toast(message);
-            refresh.postDelayed(refreshState, 2000);
+    private void finalizarComando(String message) {
+        aguardandoComando = false;
+        if (visivel) {
+            mostrarMensagem(message);
+            atualizacao.postDelayed(atualizarEstado, 2000);
         }
     }
 
-    private void showConnectionError(String message) {
-        if (!connectionErrorShown) toast(message);
-        connectionErrorShown = true;
+    private void mostrarErroConexao(String message) {
+        if (!erroConexaoExibido) mostrarMensagem(message);
+        erroConexaoExibido = true;
     }
 
-    private void toast(String message) {
+    private void mostrarMensagem(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
     @Override
     protected void onDestroy() {
-        refresh.removeCallbacksAndMessages(null);
+        atualizacao.removeCallbacksAndMessages(null);
         super.onDestroy();
     }
 }

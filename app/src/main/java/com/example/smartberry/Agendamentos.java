@@ -62,7 +62,7 @@ final class Agendamentos {
         if (alterando) return;
         alterando = true;
         modo.setEnabled(false);
-        tela.consultar(() -> tela.repository.alterarModoDiario(irrigacao, ativar), estado -> {
+        tela.consultar(() -> tela.repositorio.alterarModoDiario(irrigacao, ativar), estado -> {
             modo.setChecked(estado);
             modo.setEnabled(true);
             alterando = false;
@@ -89,8 +89,8 @@ final class Agendamentos {
         if (!ativo || atualizando) return;
         handler.removeCallbacks(atualizarLista);
         atualizando = true;
-        tela.consultar(() -> new JSONObject().put("modo", tela.repository.modoDiario(irrigacao))
-                .put("horarios", tela.repository.listarAgendamentos(irrigacao)), resposta -> {
+        tela.consultar(() -> new JSONObject().put("modo", tela.repositorio.modoDiario(irrigacao))
+                .put("horarios", tela.repositorio.listarAgendamentos(irrigacao)), resposta -> {
             if (!alterando) {
                 modo.setChecked(resposta.optBoolean("modo"));
                 modo.setEnabled(true);
@@ -167,7 +167,7 @@ final class Agendamentos {
             alterando = true;
             salvar.setEnabled(false);
             tela.consultar(() -> {
-                tela.repository.salvarAgendamento(irrigacao, item == null ? null : item.getId(),
+                tela.repositorio.salvarAgendamento(irrigacao, item == null ? null : item.getId(),
                         horario, segundos, diario);
                 return null;
             }, resultado -> {
@@ -221,7 +221,7 @@ final class Agendamentos {
                     if (alterando) return;
                     alterando = true;
                     tela.consultar(() -> {
-                        tela.repository.excluirAgendamento(irrigacao, item.getId());
+                        tela.repositorio.excluirAgendamento(irrigacao, item.getId());
                         return null;
                     }, resultado -> {
                         alterando = false;
