@@ -1,10 +1,13 @@
-
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
 
     <application
         android:usesCleartextTraffic="true"
@@ -16,21 +19,21 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SmartBerry">
 
-        <activity android:name=".AlertasActivity" android:exported="true" />
-        <activity android:name=".HistoricoActivity" android:exported="true" />
-        <activity android:name=".ControleActivity" android:exported="true" />
-        <activity android:name=".CarregamentoActivity" android:exported="true" />
+        <activity android:name=".AlertasActivity" android:exported="false" />
+        <activity android:name=".HistoricoActivity" android:exported="false" />
+        <activity android:name=".ControleActivity" android:exported="false" />
+        <activity android:name=".CarregamentoActivity" android:exported="false" />
 
         <activity
             android:name=".DashboardActivity"
-            android:exported="true"
+            android:exported="false"
             android:theme="@style/Theme.SmartBerry"
             android:windowSoftInputMode="adjustResize" />
 
-        <activity android:name=".PerfilActivity" android:exported="true" />
-        <activity android:name=".LoginActivity" android:exported="true" />
-        <activity android:name=".CadastroActivity" android:exported="true" />
-        <activity android:name=".CadastroEstufaActivity" android:exported="true" />
+        <activity android:name=".PerfilActivity" android:exported="false" />
+        <activity android:name=".LoginActivity" android:exported="false" />
+        <activity android:name=".CadastroActivity" android:exported="false" />
+        <activity android:name=".CadastroEstufaActivity" android:exported="false" />
 
         <activity
             android:name=".MainActivity"

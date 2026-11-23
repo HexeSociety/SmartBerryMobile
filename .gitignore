@@ -13,3 +13,7 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+/.smartberry-checkpoints/
+/app/**/google-services.json
+/google-services.json

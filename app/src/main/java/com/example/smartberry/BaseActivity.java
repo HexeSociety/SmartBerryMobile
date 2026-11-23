@@ -1,12 +1,73 @@
 package com.example.smartberry;
 
 import android.content.Intent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.example.smartberry.network.SmartBerryRepository;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class BaseActivity extends AppCompatActivity {
+    protected final SmartBerryRepository repositorio = new SmartBerryRepository();
+    private final ExecutorService requisicoes = Executors.newSingleThreadExecutor();
+
+    protected <T> void consultar(Callable<T> requisicao, Consumer<T> sucesso,
+                                 Consumer<Exception> falha) {
+        if (!Conta.sessaoAtiva(this)) return;
+        requisicoes.execute(() -> {
+            try {
+                T data = requisicao.call();
+                runOnUiThread(() -> {
+                    if (!isFinishing() && !isDestroyed()) sucesso.accept(data);
+                });
+            } catch (Exception error) {
+                runOnUiThread(() -> {
+                    if (!isFinishing() && !isDestroyed()) falha.accept(error);
+                });
+            }
+        });
+    }
+
+    // Alguns campos do protótipo não têm ID. Localize-os pelo texto inicial,
+    // uma vez na criação da tela, antes de renderizar os dados.
+    protected TextView textoExistente(View view, String original) {
+        if (view instanceof TextView && original.contentEquals(((TextView) view).getText())) {
+            return (TextView) view;
+        }
+        if (view instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) view;
+            for (int i = 0; i < group.getChildCount(); i++) {
+                TextView found = textoExistente(group.getChildAt(i), original);
+                if (found != null) return found;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (!Conta.sessaoAtiva(this)) {
+            Conta.finalizarSessao(this);
+            Conta.abrir(this, LoginActivity.class);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        requisicoes.shutdownNow();
+        super.onDestroy();
+    }
+
 
     protected void configurarNavbar(int itemSelecionado) {
 
