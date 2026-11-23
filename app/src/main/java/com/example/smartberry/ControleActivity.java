@@ -1,191 +1,32 @@
 package com.example.smartberry;
 
-import android.widget.Toast;
-
-import com.example.smartberry.adapters.HorarioAdapter;
-import com.example.smartberry.models.Horario;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.timepicker.MaterialTimePicker;
-import com.google.android.material.timepicker.TimeFormat;
-
-import java.util.Collections;
-import java.util.Locale;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.view.Gravity;
-import android.view.View;
-import android.view.ViewGroup;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.CompoundButton;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.smartberry.network.SmartBerryRepository;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.materialswitch.MaterialSwitch;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.json.JSONObject;
 
 public class ControleActivity extends BaseActivity {
 
-    private boolean revertendoSwitch = false;
-    private void configurarAgendamento(String processo, MaterialSwitch sw, Button btnAdicionar,
-                                       RecyclerView lista, List<Horario> dados, int icone) {
-        String nome = Character.toUpperCase(processo.charAt(0)) + processo.substring(1);
-
-        lista.setLayoutManager(new LinearLayoutManager(this));
-        HorarioAdapter adapter = new HorarioAdapter(dados);
-        lista.setAdapter(adapter);
-
-        // Botão adicionar só vale com o modo automático ligado
-        atualizarBotaoAdicionar(btnAdicionar, sw.isChecked());
-        btnAdicionar.setOnClickListener(v -> abrirNovoHorario(processo, dados, adapter));
-
-        sw.setOnCheckedChangeListener((botao, ligado) -> {
-            if (revertendoSwitch) return;
-
-            if (ligado) {
-                atualizarBotaoAdicionar(btnAdicionar, true);
-                mostrarAlerta("Modo " + nome + " Automático Ativado", icone);
-            } else {
-                // Volta para ligado até o usuário confirmar
-                revertendoSwitch = true;
-                sw.setChecked(true);
-                revertendoSwitch = false;
-
-                new MaterialAlertDialogBuilder(this)
-                        .setTitle("Desativar modo automático?")
-                        .setMessage("O modo automático da " + processo + " será desativado e os "
-                                + "horários agendados deixarão de ser executados.")
-                        .setNegativeButton("Cancelar", null)
-                        .setPositiveButton("Desativar", (dialog, which) -> {
-                            revertendoSwitch = true;
-                            sw.setChecked(false);
-                            revertendoSwitch = false;
-                            atualizarBotaoAdicionar(btnAdicionar, false);
-                            mostrarAlerta("Modo " + nome + " Automático Desativado", icone);
-                        })
-                        .show();
-            }
-        });
-    }
-
-    private void atualizarBotaoAdicionar(Button botao, boolean ativo) {
-        botao.setEnabled(ativo);
-        botao.setAlpha(ativo ? 1f : 0.5f);
-    }
-
-    private void abrirNovoHorario(String processo, List<Horario> dados, HorarioAdapter adapter) {
-        BottomSheetDialog sheet = new BottomSheetDialog(this);
-        View v = getLayoutInflater().inflate(R.layout.item_bottom_sheet_controle, null);
-        sheet.setContentView(v);
-
-        TextView titulo = v.findViewById(R.id.txtTituloSheet);
-        Button btnHora = v.findViewById(R.id.btnEscolherHora);
-        TextInputEditText etDuracao = v.findViewById(R.id.etDuracao);
-        Button btnSalvar = v.findViewById(R.id.btnSalvarHorario);
-
-        titulo.setText("Novo horário de " + processo);
-        int[] escolhido = {-1, -1}; // hora e minuto
-
-        btnHora.setOnClickListener(x -> {
-            MaterialTimePicker picker = new MaterialTimePicker.Builder()
-                    .setTimeFormat(TimeFormat.CLOCK_24H)
-                    .setHour(6)
-                    .setMinute(0)
-                    .setTitleText("Escolha o horário")
-                    .build();
-            picker.addOnPositiveButtonClickListener(p -> {
-                escolhido[0] = picker.getHour();
-                escolhido[1] = picker.getMinute();
-                btnHora.setText(String.format(Locale.getDefault(), "%02d:%02d",
-                        escolhido[0], escolhido[1]));
-            });
-            picker.show(getSupportFragmentManager(), "hora");
-        });
-
-        btnSalvar.setOnClickListener(x -> {
-            String txt = etDuracao.getText() == null ? "" : etDuracao.getText().toString().trim();
-
-            if (escolhido[0] < 0) {
-                Toast.makeText(this, "Escolha o horário", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            if (txt.isEmpty() || Integer.parseInt(txt) <= 0) {
-                etDuracao.setError("Informe a duração em minutos");
-                return;
-            }
-
-            String hora = String.format(Locale.getDefault(), "%02d:%02d", escolhido[0], escolhido[1]);
-            for (Horario h : dados) {
-                if (h.getHora().equals(hora)) {
-                    Toast.makeText(this, "Já existe um horário às " + hora, Toast.LENGTH_SHORT).show();
-                    return;
-                }
-            }
-
-            dados.add(new Horario(hora, Integer.parseInt(txt), false)); // entra como Pendente
-            Collections.sort(dados, (a, b) -> a.getHora().compareTo(b.getHora()));
-            adapter.notifyDataSetChanged();
-            sheet.dismiss();
-        });
-
-        sheet.show();
-    }
-    private void mostrarAlerta(String mensagem, int iconeRes) {
-        ViewGroup raiz = findViewById(android.R.id.content);
-        View alerta = getLayoutInflater().inflate(R.layout.item_alerta_controle, raiz, false);
-        ((TextView) alerta.findViewById(R.id.txtAlerta)).setText(mensagem);
-        ((ImageView) alerta.findViewById(R.id.imgAlerta)).setImageResource(iconeRes);
-        float d = getResources().getDisplayMetrics().density;
-        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.gravity = Gravity.TOP;
-        lp.setMargins((int) (20 * d), (int) (48 * d), (int) (20 * d), 0);
-        alerta.setLayoutParams(lp);
-
-        alerta.setAlpha(0f);
-        raiz.addView(alerta);
-        alerta.animate().alpha(1f).setDuration(200).start();
-
-        alerta.postDelayed(() -> alerta.animate().alpha(0f).setDuration(300)
-                .withEndAction(() -> raiz.removeView(alerta)).start(), 3000);
-    }
-
-    private void configurarControleManual(Button botao, String processo,
-                                          String textoIniciar, String textoParar, int icone) {
-        String nome = Character.toUpperCase(processo.charAt(0)) + processo.substring(1);
-
-        botao.setOnClickListener(v -> {
-            if (!botao.isActivated()) {
-                new MaterialAlertDialogBuilder(this)
-                        .setTitle("Ativar " + processo + " manual?")
-                        .setMessage("Você vai assumir o controle manual da " + processo
-                                + ". Ela continuará ligada até você parar.")
-                        .setNegativeButton("Cancelar", null)
-                        .setPositiveButton("Confirmar", (dialog, which) -> {
-                            botao.setActivated(true);
-                            botao.setText(textoParar);
-                            botao.setBackgroundTintList(
-                                    ColorStateList.valueOf(Color.parseColor("#D32F2F")));
-                            mostrarAlerta(nome + " Iniciada", icone);
-                        })
-                        .show();
-            } else {
-                botao.setActivated(false);
-                botao.setText(textoIniciar);
-                botao.setBackgroundTintList(
-                        ColorStateList.valueOf(Color.parseColor("#35A736")));
-                mostrarAlerta(nome + " Encerrada", icone);
-            }
-        });
-    }
+    private static final int DURACAO_IRRIGACAO_SEGUNDOS = 30;
+    private final Handler refresh = new Handler(Looper.getMainLooper());
+    private final Runnable refreshState = this::loadState;
+    private Button pump, fan;
+    private CompoundButton autoPump, autoFan;
+    private boolean waitingForCommand;
+    private boolean visible;
+    private boolean stateLoaded;
+    private boolean connectionErrorShown;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -194,35 +35,151 @@ public class ControleActivity extends BaseActivity {
         setContentView(R.layout.activity_controle);
         configurarNavbar(R.id.nav_controle);
 
-        //navbar
-        configurarNavbar(R.id.nav_controle);
+        pump = findViewById(R.id.btnIrrigar);
+        fan = findViewById(R.id.btnVentilar);
+        pump.setOnClickListener(v -> control(pump.isActivated(), true));
+        fan.setOnClickListener(v -> control(fan.isActivated(), false));
+        pump.setEnabled(false);
+        fan.setEnabled(false);
 
-        // Irrigação
-        List<Horario> horariosIrrigacao = new ArrayList<>();
+        autoPump = configureLocalAutomation(R.id.switchIrrigacao, R.id.btnAdicionarIrrigacao);
+        autoFan = configureLocalAutomation(R.id.switchVentilacao, R.id.btnAdicionarVentilacao);
+    }
 
-        configurarAgendamento("irrigação",
-                findViewById(R.id.switchIrrigacao),
-                findViewById(R.id.btnAdicionarIrrigacao),
-                findViewById(R.id.listaHorarios),
-                horariosIrrigacao,
-                R.drawable.icon_gotas);
+    private CompoundButton configureLocalAutomation(int switchId, int buttonId) {
+        CompoundButton toggle = findViewById(switchId);
+        toggle.setChecked(false);
+        toggle.setOnClickListener(v -> {
+            toggle.setChecked(!toggle.isChecked());
+            toast("Configure a automação pelo painel local do ESP32.");
+        });
+        findViewById(buttonId).setOnClickListener(v ->
+                toast("Configure a automação pelo painel local do ESP32."));
+        return toggle;
+    }
 
-        // Ventilação
-        configurarAgendamento("ventilação",
-                findViewById(R.id.switchVentilacao),
-                findViewById(R.id.btnAdicionarVentilacao),
-                findViewById(R.id.listaHorariosVentilacao),
-                new ArrayList<>(),
-                R.drawable.icon_ventilacao);
+    @Override
+    protected void onStart() {
+        super.onStart();
+        visible = true;
+        refresh.post(refreshState);
+    }
 
-        // Alertas de controle manual
-        configurarControleManual(findViewById(R.id.btnIrrigar), "irrigação",
-                "Irrigar Agora", "Parar Irrigação", R.drawable.icon_gotas);
-        configurarControleManual(findViewById(R.id.btnVentilar), "ventilação",
-                "Ventilar Agora", "Parar Ventilação", R.drawable.icon_ventilacao);
+    @Override
+    protected void onStop() {
+        visible = false;
+        refresh.removeCallbacks(refreshState);
+        super.onStop();
+    }
 
-        // Lista de horários
-        RecyclerView lista = findViewById(R.id.listaHorarios);
-        lista.setLayoutManager(new LinearLayoutManager(this));
+    private void loadState() {
+        if (waitingForCommand) return;
+        consultar(repository::leitura, data -> {
+            if (waitingForCommand || !visible) return;
+            stateLoaded = DashboardActivity.leituraRecente(data);
+            if (stateLoaded) {
+                autoPump.setChecked(data.optBoolean("irrigacaoAutomatica"));
+                autoFan.setChecked(data.optBoolean("ventilacaoAutomatica"));
+            }
+            render(pump, data, "irrigacaoLigada", "Irrigar Agora", "Parar Irrigação");
+            render(fan, data, "ventilacaoLigada", "Ventilar Agora", "Parar Ventilação");
+            if (!stateLoaded) showConnectionError("Aguardando uma leitura recente do ESP32");
+            else connectionErrorShown = false;
+            refresh.postDelayed(refreshState, 3000);
+        }, error -> {
+            if (waitingForCommand || !visible) return;
+            stateLoaded = false;
+            pump.setEnabled(false);
+            fan.setEnabled(false);
+            showConnectionError(SmartBerryRepository.mensagem(error));
+            refresh.postDelayed(refreshState, 3000);
+        });
+    }
+
+    private void render(Button button, JSONObject data, String key, String start, String stop) {
+        if (!stateLoaded || data.isNull(key)) {
+            button.setEnabled(false);
+            return;
+        }
+        setState(button, data.optBoolean(key), start, stop);
+        button.setEnabled(true);
+    }
+
+    private void setState(Button button, boolean active, String start, String stop) {
+        button.setActivated(active);
+        button.setText(active ? stop : start);
+        button.setBackgroundTintList(ColorStateList.valueOf(
+                Color.parseColor(active ? "#D32F2F" : "#35A736")));
+    }
+
+    private void control(boolean active, boolean irrigation) {
+        String type = irrigation ? (active ? "PARAR_IRRIGACAO" : "ACIONAR_IRRIGACAO")
+                : (active ? "DESLIGAR_VENTILACAO" : "LIGAR_VENTILACAO");
+        if (active) {
+            send(type, null);
+            return;
+        }
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(irrigation ? "Ativar irrigação manual?" : "Ativar ventilação manual?")
+                .setMessage(irrigation ? "A bomba será acionada por até 30 segundos."
+                        : "A ventilação ficará ligada até receber o comando de parada.")
+                .setNegativeButton("Cancelar", null)
+                .setPositiveButton("Confirmar", (dialog, which) ->
+                        send(type, irrigation ? DURACAO_IRRIGACAO_SEGUNDOS : null))
+                .show();
+    }
+
+    private void send(String type, Integer value) {
+        if (!stateLoaded || waitingForCommand) return;
+        waitingForCommand = true;
+        refresh.removeCallbacks(refreshState);
+        pump.setEnabled(false);
+        fan.setEnabled(false);
+        toast("Enviando comando…");
+        consultar(() -> repository.enviarComando(type, value), id -> awaitCommand(id, 15),
+                error -> finishCommand(SmartBerryRepository.mensagem(error)));
+    }
+
+    private void awaitCommand(String id, int attempts) {
+        consultar(() -> repository.statusComando(id), status -> {
+            if ("EXECUTADO".equals(status)) {
+                finishCommand("Comando executado pelo ESP32");
+            } else if ("REJEITADO".equals(status)) {
+                finishCommand("O ESP32 rejeitou o comando. Verifique o modo automático.");
+            } else {
+                retryCommand(id, attempts);
+            }
+        }, error -> retryCommand(id, attempts));
+    }
+
+    private void retryCommand(String id, int attempts) {
+        if (attempts <= 1) {
+            finishCommand("Execução ainda sem confirmação. Consulte o estado do ESP32.");
+        } else {
+            refresh.postDelayed(() -> awaitCommand(id, attempts - 1), 1000);
+        }
+    }
+
+    private void finishCommand(String message) {
+        waitingForCommand = false;
+        if (visible) {
+            toast(message);
+            refresh.postDelayed(refreshState, 2000);
+        }
+    }
+
+    private void showConnectionError(String message) {
+        if (!connectionErrorShown) toast(message);
+        connectionErrorShown = true;
+    }
+
+    private void toast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        refresh.removeCallbacksAndMessages(null);
+        super.onDestroy();
     }
 }

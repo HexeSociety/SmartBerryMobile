@@ -18,6 +18,14 @@ android {
         versionCode 1
         versionName "1.0"
 
+        def config = [SMARTBERRY_API_URL: 'http://10.0.2.2:8080',
+                      SMARTBERRY_ESP32_ID: '', SMARTBERRY_API_KEY: '']
+        config.each { name, fallback ->
+            def value = providers.gradleProperty(name).orElse(providers.environmentVariable(name))
+                    .getOrElse(fallback)
+            buildConfigField 'String', name, groovy.json.JsonOutput.toJson(value)
+        }
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -33,6 +41,7 @@ android {
     }
     buildFeatures {
         compose true
+        buildConfig true
     }
 }
 

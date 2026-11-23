@@ -1,6 +1,5 @@
 package com.example.smartberry;
 
-import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
@@ -15,10 +14,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import org.json.JSONObject;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import com.example.smartberry.network.SmartBerryRepository;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.Manifest;
@@ -63,15 +59,6 @@ public class AlertasActivity extends BaseActivity {
     private static final int NOTIF_ID_VENT = 1003;
 
     // ---------------------------------------------------------------------
-    // API configuration (single declaration)
-    // ---------------------------------------------------------------------
-    private static final String API_HOST = "<IP_OR_HOST>"; // placeholder – configure with local IP
-    private static final int API_PORT = 8080;
-    private String getBaseUrl() {
-        return String.format("http://%s:%d", API_HOST, API_PORT);
-    }
-
-    // ---------------------------------------------------------------------
     // Handler for the periodic refresh (must be cancelled in onDestroy).
     // ---------------------------------------------------------------------
     private final Handler handler = new Handler(Looper.getMainLooper());
@@ -88,7 +75,6 @@ public class AlertasActivity extends BaseActivity {
     // ---------------------------------------------------------------------
     private Boolean prevVentilacaoLigada = null;
     private Boolean prevIrrigacaoLigada = null;
-    private Double prevTemperatura = null;
     private boolean tempLowAlertShown = false;
     private boolean tempHighAlertShown = false;
 
@@ -180,83 +166,51 @@ public class AlertasActivity extends BaseActivity {
         descricaoIrrigacaoConcluida = findViewById(R.id.descricaoIriigacaoConcluida);
     }
 
-    /** Fetch data from all alert endpoints in a background thread. */
     private void fetchAllData() {
-        new Thread(() -> {
-            fetchDht11();
-            fetchIrrigacao();
-            fetchVentilacao();
-            // After both irrigation and ventilation have been fetched, process combined notification.
-            runOnUiThread(this::processIrrigacaoVentilacaoChanges);
-        }).start();
-    }
-
-    /** GET /api/alertas/dht11 – returns temperature, humidity and timestamp. */
-    private void fetchDht11() {
-        String endpoint = getBaseUrl() + "/api/alertas/dht11";
-        try {
-            JSONObject json = getJsonFromUrl(endpoint);
-            double temperatura = json.optDouble("temperatura", Double.NaN);
-            double umidade = json.optDouble("umidade", Double.NaN);
-            String dataHora = json.optString("dataHora", "");
-            runOnUiThread(() -> {
-                if (!Double.isNaN(temperatura)) {
-                    descricaoTempAlta.setText(String.format("Temperatura: %.1f°C", temperatura));
-                    dataHoraTempAlta.setText(dataHora);
-                    checkTemperatureLimits(temperatura);
-                } else {
-                    descricaoTempAlta.setText("Sem dados de temperatura");
-                }
-                if (!Double.isNaN(umidade)) {
-                    descricaoUmidadeBaixa.setText(String.format("Umidade: %.1f%%", umidade));
-                    dataHoraUmidadeBaixa.setText(dataHora);
-                } else {
-                    descricaoUmidadeBaixa.setText("Sem dados de umidade");
-                }
-            });
-        } catch (Exception e) {
-            runOnUiThread(() -> {
-                descricaoTempAlta.setText("Erro ao obter temperatura");
-                descricaoUmidadeBaixa.setText("Erro ao obter umidade");
-            });
-        }
-    }
-
-    /** GET /api/alertas/irrigacao – returns { "ligada": boolean, "dataHora": string } */
-    private void fetchIrrigacao() {
-        String endpoint = getBaseUrl() + "/api/alertas/irrigacao";
-        try {
-            JSONObject json = getJsonFromUrl(endpoint);
-            // Validate that "ligada" exists and is a boolean
-            if (!json.has("ligada") || !(json.get("ligada") instanceof Boolean)) {
-                return; // ignore invalid response
+        consultar(repository::leitura, data -> {
+            String stamp = data.optString("dataRegistro").replace('T', ' ');
+            if (stamp.length() > 19) stamp = stamp.substring(0, 19);
+            dataHoraTempAlta.setText(stamp);
+            dataHoraUmidadeBaixa.setText(stamp);
+            dataHoraSensorSemResposta.setText(stamp);
+            dataHoraSemConexao.setText(stamp);
+            descricaoTempAlta.setText("Temperatura: "
+                    + SmartBerryRepository.medida(data, "temperatura", "°C"));
+            descricaoUmidadeBaixa.setText("Umidade: "
+                    + SmartBerryRepository.medida(data, "umidade", "%"));
+            descricaoSemConexao.setText("API acessível");
+            boolean recent = DashboardActivity.leituraRecente(data);
+            descricaoSensorSemResposta.setText(recent
+                    ? "Sensor respondendo" : "Aguardando nova leitura do ESP32");
+            if (!recent) return;
+            double temperature = data.optDouble("temperatura", Double.NaN);
+            if (Double.isFinite(temperature)) checkTemperatureLimits(temperature);
+            if (!data.isNull("irrigacaoLigada")) {
+                newIrrigacaoLigada = data.optBoolean("irrigacaoLigada");
+                irrigacaoDataHora = stamp;
+                irrigacaoMsg = "Irrigação " + (newIrrigacaoLigada ? "ligada" : "desligada");
+                irrigacaoChanged = prevIrrigacaoLigada != null
+                        && !prevIrrigacaoLigada.equals(newIrrigacaoLigada);
             }
-            boolean ligada = json.getBoolean("ligada");
-            String dataHora = json.optString("dataHora", "");
-            newIrrigacaoLigada = ligada;
-            irrigacaoDataHora = dataHora;
-            irrigacaoMsg = "Irrigação " + (ligada ? "Ligada" : "Desligada");
-            irrigacaoChanged = prevIrrigacaoLigada != null && !prevIrrigacaoLigada.equals(ligada);
-        } catch (Exception e) {
-            // keep previous state, no change
-        }
-    }
-
-    /** GET /api/alertas/ventilacao – returns { "ligada": boolean, "dataHora": string } */
-    private void fetchVentilacao() {
-        String endpoint = getBaseUrl() + "/api/alertas/ventilacao";
-        try {
-            JSONObject json = getJsonFromUrl(endpoint);
-            if (!json.has("ligada") || !(json.get("ligada") instanceof Boolean)) {
-                return; // ignore invalid response
+            if (!data.isNull("ventilacaoLigada")) {
+                newVentilacaoLigada = data.optBoolean("ventilacaoLigada");
+                ventilacaoMsg = "Ventilação " + (newVentilacaoLigada ? "ligada" : "desligada");
+                ventilacaoChanged = prevVentilacaoLigada != null
+                        && !prevVentilacaoLigada.equals(newVentilacaoLigada);
             }
-            boolean ligada = json.getBoolean("ligada");
-            newVentilacaoLigada = ligada;
-            ventilacaoMsg = "Ventilação " + (ligada ? "Ligada" : "Desligada");
-            ventilacaoChanged = prevVentilacaoLigada != null && !prevVentilacaoLigada.equals(ligada);
-        } catch (Exception e) {
-            // keep previous state, no change
-        }
+            processIrrigacaoVentilacaoChanges();
+        }, error -> {
+            descricaoTempAlta.setText("Temperatura: —");
+            descricaoUmidadeBaixa.setText("Umidade: —");
+            descricaoIrrigacaoConcluida.setText("Estado da irrigação indisponível");
+            descricaoSemConexao.setText(SmartBerryRepository.mensagem(error));
+            descricaoSensorSemResposta.setText("Estado do sensor indisponível");
+            dataHoraTempAlta.setText("");
+            dataHoraUmidadeBaixa.setText("");
+            dataHoraIrrigacaoConcluida.setText("");
+            dataHoraSemConexao.setText("");
+            dataHoraSensorSemResposta.setText("");
+        });
     }
 
     /** Process combined changes for irrigation and ventilation after both have been fetched. */
@@ -299,31 +253,6 @@ public class AlertasActivity extends BaseActivity {
         irrigacaoMsg = "";
         ventilacaoMsg = "";
         irrigacaoDataHora = "";
-    }
-
-    /** Helper to perform a simple GET request and return a JSONObject. */
-    private JSONObject getJsonFromUrl(String urlString) throws Exception {
-        URL url = new URL(urlString);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        try {
-            conn.setRequestMethod("GET");
-            conn.setConnectTimeout(5000);
-            conn.setReadTimeout(5000);
-            int responseCode = conn.getResponseCode();
-            if (responseCode != HttpURLConnection.HTTP_OK) {
-                throw new Exception("HTTP error code: " + responseCode);
-            }
-            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = in.readLine()) != null) {
-                sb.append(line);
-            }
-            in.close();
-            return new JSONObject(sb.toString());
-        } finally {
-            conn.disconnect();
-        }
     }
 
     /** Checks temperature against user‑defined limits stored in SharedPreferences. */
