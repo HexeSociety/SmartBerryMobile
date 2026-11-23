@@ -22,6 +22,7 @@ public class BaseActivity extends AppCompatActivity {
 
     protected <T> void consultar(Callable<T> request, Consumer<T> success,
                                  Consumer<Exception> failure) {
+        if (!Conta.sessaoAtiva(this)) return;
         requests.execute(() -> {
             try {
                 T data = request.call();
@@ -50,6 +51,15 @@ public class BaseActivity extends AppCompatActivity {
             }
         }
         return null;
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (!Conta.sessaoAtiva(this)) {
+            Conta.finalizarSessao(this);
+            Conta.abrir(this, LoginActivity.class);
+        }
     }
 
     @Override

@@ -9,6 +9,13 @@ import android.os.Bundle;
 import android.util.AtomicFile;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
+import androidx.credentials.ClearCredentialStateRequest;
+import androidx.credentials.CredentialManager;
+import androidx.credentials.CredentialManagerCallback;
+import androidx.credentials.exceptions.ClearCredentialException;
+import androidx.core.content.ContextCompat;
+import com.google.firebase.auth.FirebaseUser;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -45,8 +52,12 @@ public class PerfilActivity extends BaseActivity {
         setContentView(R.layout.activity_perfil);
         configurarNavbar(R.id.nav_perfil);
 
+        if (!Conta.sessaoAtiva(this)) return;
+        FirebaseUser user = Conta.usuario();
+        if (user == null) return;
+        atualizarPerfil(user);
         imgPerfil = findViewById(R.id.imgPerfil);
-        fotoPerfil = new AtomicFile(new File(getFilesDir(), "foto-perfil.png"));
+        fotoPerfil = new AtomicFile(new File(getFilesDir(), "foto-perfil-" + user.getUid() + ".png"));
         try (var entrada = fotoPerfil.openRead()) {
             Bitmap foto = BitmapFactory.decodeStream(entrada);
             if (foto != null) imgPerfil.setImageBitmap(foto);
@@ -77,12 +88,34 @@ public class PerfilActivity extends BaseActivity {
             }
         });
 
-        btnSair.setOnClickListener(v -> {
-            Toast.makeText(this, "Saindo da conta...",
-                    Toast.LENGTH_SHORT).show();
+        btnSair.setOnClickListener(v -> sair());
+    }
 
-            finish();
-        });
+    private void atualizarPerfil(FirebaseUser user) {
+        var dados = Conta.dadosLocais(this, user);
+        var raiz = findViewById(android.R.id.content);
+        TextView nome = textoExistente(raiz, "João Silva");
+        String nomeExibicao = dados.getString("nome", user.getDisplayName());
+        nome.setText(nomeExibicao == null || nomeExibicao.isEmpty() ? user.getEmail() : nomeExibicao);
+        String estufa = dados.getString("estufa", "");
+        String local = dados.getString("localizacao", "");
+        textoExistente(raiz, "Produtor Familiar • Estufa Morangos SP")
+                .setText(estufa.isEmpty() ? user.getEmail() : local.isEmpty() ? estufa : estufa + " • " + local);
+        String area = dados.getString("area", "");
+        textoExistente(raiz, "3 Hectares").setText(area.isEmpty() ? "—" : area + " m²");
+        String cultivo = dados.getString("cultivo", "");
+        textoExistente(raiz, "Morango Albion").setText(cultivo.isEmpty() ? "—" : cultivo);
+    }
+
+    private void sair() {
+        Conta.finalizarSessao(this);
+        CredentialManager.create(this).clearCredentialStateAsync(new ClearCredentialStateRequest(),
+                null, ContextCompat.getMainExecutor(this),
+                new CredentialManagerCallback<Void, ClearCredentialException>() {
+                    @Override public void onResult(Void result) { }
+                    @Override public void onError(ClearCredentialException exception) { }
+                });
+        Conta.abrir(this, LoginActivity.class);
     }
 
     private void abrirCamera() {
@@ -94,7 +127,7 @@ public class PerfilActivity extends BaseActivity {
     }
 
     private void salvarFoto(Bitmap foto) {
-        if (foto == null) return;
+        if (foto == null || fotoPerfil == null) return;
 
         FileOutputStream saida = null;
         try {
