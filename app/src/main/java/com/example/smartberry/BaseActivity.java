@@ -68,6 +68,15 @@ public class BaseActivity extends AppCompatActivity {
                 return true;
             }
 
+            if (id == R.id.nav_monitoramento) {
+
+                if (itemSelecionado != R.id.nav_monitoramento) {
+                    abrirTela(MonitoramentoActivity.class);
+                }
+
+                return true;
+            }
+
 
             return false;
         });
