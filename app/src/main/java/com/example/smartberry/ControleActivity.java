@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -22,7 +21,7 @@ public class ControleActivity extends BaseActivity {
     private final Handler refresh = new Handler(Looper.getMainLooper());
     private final Runnable refreshState = this::loadState;
     private Button pump, fan;
-    private CompoundButton autoPump, autoFan;
+    private Agendamentos agendamentosIrrigacao, agendamentosVentilacao;
     private boolean waitingForCommand;
     private boolean visible;
     private boolean stateLoaded;
@@ -42,32 +41,24 @@ public class ControleActivity extends BaseActivity {
         pump.setEnabled(false);
         fan.setEnabled(false);
 
-        autoPump = configureLocalAutomation(R.id.switchIrrigacao, R.id.btnAdicionarIrrigacao);
-        autoFan = configureLocalAutomation(R.id.switchVentilacao, R.id.btnAdicionarVentilacao);
-    }
-
-    private CompoundButton configureLocalAutomation(int switchId, int buttonId) {
-        CompoundButton toggle = findViewById(switchId);
-        toggle.setChecked(false);
-        toggle.setOnClickListener(v -> {
-            toggle.setChecked(!toggle.isChecked());
-            toast("Configure a automação pelo painel local do ESP32.");
-        });
-        findViewById(buttonId).setOnClickListener(v ->
-                toast("Configure a automação pelo painel local do ESP32."));
-        return toggle;
+        agendamentosIrrigacao = new Agendamentos(this, true);
+        agendamentosVentilacao = new Agendamentos(this, false);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         visible = true;
+        agendamentosIrrigacao.iniciar();
+        agendamentosVentilacao.iniciar();
         refresh.post(refreshState);
     }
 
     @Override
     protected void onStop() {
         visible = false;
+        agendamentosIrrigacao.parar();
+        agendamentosVentilacao.parar();
         refresh.removeCallbacks(refreshState);
         super.onStop();
     }
@@ -77,10 +68,6 @@ public class ControleActivity extends BaseActivity {
         consultar(repository::leitura, data -> {
             if (waitingForCommand || !visible) return;
             stateLoaded = DashboardActivity.leituraRecente(data);
-            if (stateLoaded) {
-                autoPump.setChecked(data.optBoolean("irrigacaoAutomatica"));
-                autoFan.setChecked(data.optBoolean("ventilacaoAutomatica"));
-            }
             render(pump, data, "irrigacaoLigada", "Irrigar Agora", "Parar Irrigação");
             render(fan, data, "ventilacaoLigada", "Ventilar Agora", "Parar Ventilação");
             if (!stateLoaded) showConnectionError("Aguardando uma leitura recente do ESP32");

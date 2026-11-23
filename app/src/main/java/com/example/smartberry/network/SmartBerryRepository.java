@@ -49,6 +49,40 @@ public final class SmartBerryRepository {
         return new JSONObject(request("POST", "/api/comandos", body)).getString("id");
     }
 
+    public JSONArray listarAgendamentos(boolean irrigacao) throws Exception {
+        return new JSONArray(request("GET", caminhoAgendamentos(irrigacao), null));
+    }
+
+    public boolean modoDiario(boolean irrigacao) throws Exception {
+        return new JSONObject(request("GET", caminhoAgendamentos(irrigacao) + "/automatico", null))
+                .getBoolean("ativo");
+    }
+
+    public boolean alterarModoDiario(boolean irrigacao, boolean ativo) throws Exception {
+        return new JSONObject(request("PUT", caminhoAgendamentos(irrigacao) + "/automatico",
+                new JSONObject().put("ativo", ativo))).getBoolean("ativo");
+    }
+
+    public void salvarAgendamento(boolean irrigacao, String id, String horario,
+                                   int duracaoSegundos, boolean diario) throws Exception {
+        JSONObject dados = new JSONObject().put("horario", horario)
+                .put("duracaoSegundos", duracaoSegundos).put("diario", diario);
+        String caminho = caminhoAgendamentos(irrigacao);
+        if (id == null) request("POST", caminho, dados);
+        else request("PUT", caminho + "/" + Uri.encode(id), dados);
+    }
+
+    public void excluirAgendamento(boolean irrigacao, String id) throws Exception {
+        request("DELETE", caminhoAgendamentos(irrigacao) + "/" + Uri.encode(id), null);
+    }
+
+    private String caminhoAgendamentos(boolean irrigacao) throws Exception {
+        if (deviceId.isEmpty()) {
+            deviceId = new JSONObject(request("GET", DISCOVERY_PATH + "?incluirOffline=true", null)).getString("id");
+        }
+        return devicePath("/api/esp32/") + (irrigacao ? "/agendamentos-irrigacao" : "/agendamentos-ventilacao");
+    }
+
     public String statusComando(String id) throws Exception {
         return new JSONObject(request("GET", "/api/comandos/" + Uri.encode(id), null))
                 .getString("status");
@@ -86,9 +120,13 @@ public final class SmartBerryRepository {
             }
             int status = connection.getResponseCode();
             if (status == 401) throw new IOException("Chave da API inválida");
-            if (DISCOVERY_PATH.equals(path)) {
+            if (path.equals(DISCOVERY_PATH) || path.startsWith(DISCOVERY_PATH + "?")) {
                 if (status == 404) throw new IOException("Aguardando leituras do ESP32");
                 if (status == 409) throw new IOException("Mais de um ESP32 online");
+            }
+            if (path.contains("/agendamentos-")) {
+                if (status == 400) throw new IOException("Confira a data e a duração do agendamento.");
+                if (status == 409) throw new IOException("O agendamento não pode mais ser alterado ou a placa está desativada.");
             }
             if (status == 404) throw new IOException("Nenhum dado disponível");
             if (status < 200 || status >= 300) throw new IOException("Erro da API (HTTP " + status + ")");
