@@ -1,0 +1,20 @@
+SMARTBERRY 360 — ESTADO DO PROJETO
+
+O SmartBerry é um MVP acadêmico para monitorar e controlar uma estufa. São três projetos:
+- SmartBerryMobile: Android nativo em Java, com telas XML aprovadas no Figma. Preserve os layouts e os recursos visuais.
+- SmartBerryAPI: Java 21, Spring Boot e MongoDB. Recebe as leituras, consulta o histórico e gerencia comandos de irrigação e ventilação.
+- SmartBerryIoT: firmware Arduino para ESP32 com sensor DHT22 e relés para bomba e ventilador.
+
+O que já funciona
+- O ESP32 se cadastra automaticamente na API. O Android encontra a única placa ativa com leituras recentes. O ID manual é opcional.
+- Validamos os três componentes no Wi-Fi. Leituras reais foram persistidas no MongoDB, e o Dashboard do celular exibiu temperatura, umidade e o estado online.
+- O Android permite criar, editar e excluir vários horários pontuais ou diários de irrigação e ventilação. A API guarda os horários e os modos no MongoDB e processa a fila com o app fechado.
+- Na rede local, o ESP32 confirmou um ciclo pontual de irrigação e um ciclo diário de ventilação. A telemetria mostrou ambos os relés ligando e desligando no tempo programado. O painel web legado fica desativado por padrão.
+
+Autenticação
+- O Android tem cadastro em duas etapas, login por e-mail e senha, recuperação de senha e login com Google via Firebase Authentication. A opção Lembrar guarda o e-mail e mantém a sessão no aparelho. A senha é usada apenas para autenticação.
+- O APK compilou e os testes unitários passaram. O login via Google foi confirmado no celular. O cadastro e a entrada com e-mail e senha ainda precisam de teste com uma conta real. O guia de configuração está em docs/FIREBASE-AUTENTICACAO.md.
+- A versão anterior de monitoramento foi preservada em um APK separado e em uma cópia local do código dos três projetos.
+
+Como avançar enquanto estou sem o ESP32
+Posso continuar a autenticação, a navegação, os testes do Android e os testes da API com MongoDB sem a placa. Uma placa simulada em ambiente de teste pode validar a troca de mensagens e os estados do app. O ESP32 físico será necessário para validar novos comportamentos do firmware, o sensor e a resposta real dos relés.

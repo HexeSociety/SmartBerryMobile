@@ -115,3 +115,29 @@ Projeto desenvolvido pela organização **[HexeSociety](https://github.com/HexeS
 - **Murillo Miguel Ozorio de Souza**
 - **Cauã de Oliveira Santos**
 - **Matheus Vieira Peres**
+
+## Executar o MVP na rede local
+
+1. Inicie a SmartBerryAPI com MongoDB e defina `SMARTBERRY_API_KEY` no servidor.
+2. Configure o firmware conforme o README do SmartBerryIoT, usando o mesmo endereço e a mesma chave.
+3. Com Java 21 e o Android SDK configurados, gere o APK com os valores da rede da apresentação.
+
+```bash
+export SMARTBERRY_API_URL=http://IP_DO_COMPUTADOR:8080
+export SMARTBERRY_API_KEY=CHAVE_LOCAL_DA_API
+bash gradlew :app:assembleDebug :app:testDebugUnitTest
+```
+
+O APK fica em `app/build/outputs/apk/debug/app-debug.apk`. Em um emulador, use `http://10.0.2.2:8080`. Em um celular, use o IP do computador na rede compartilhada com o ESP32. A chave é incorporada ao APK do MVP, destinado à rede local da apresentação.
+
+Depois do login, o Dashboard encontra automaticamente o único ESP32 ativo enviando leituras à API. O parâmetro `SMARTBERRY_ESP32_ID` é opcional e permite escolher uma placa específica se houver várias online. Os controles manuais mostram o retorno do ESP32. A bomba recebe um comando de até 30 segundos e pode ser parada antes. Configure os horários de irrigação e ventilação na tela Controle. No histórico, as medições vêm do DHT22. Os cartões mostram partidas manuais confirmadas e a duração programada. Um traço indica que o volume de água está indisponível.
+
+## Autenticação
+
+Consulte o [guia de configuração do Firebase](docs/FIREBASE-AUTENTICACAO.md) para cadastrar o Android, habilitar e-mail e Google e testar o login.
+
+## Irrigação e ventilação no Android
+
+Em **Controle**, escolha **Adicionar horário** na seção do equipamento. Selecione **Uma vez** ou **Todos os dias**, informe a data inicial, o horário de São Paulo e uma duração de 1 a 5 minutos. Cada equipamento aceita vários horários. Toque em uma linha para editar uma programação pendente ou excluir um horário.
+
+Os dois interruptores **Modo Automático** gerenciam as ocorrências diárias de cada equipamento. Uma programação pontual funciona mesmo com o interruptor desligado. A API guarda a configuração e processa os horários com o aplicativo fechado. O ESP32 executa os comandos e desliga o relé quando a duração termina.
